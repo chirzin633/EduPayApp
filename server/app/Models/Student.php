@@ -19,7 +19,8 @@ class Student extends Model
         'phone_number',
         'address',
         'parent_name',
-        'parent_phone'
+        'parent_phone',
+        'is_active'
     ];
 
     protected $casts = [
