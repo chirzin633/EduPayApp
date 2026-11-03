@@ -3,8 +3,9 @@
 namespace App\Services;
 
 use App\Models\Invoice;
-use Exception;
+use App\Models\Payment;
 use Illuminate\Support\Facades\DB;
+use InvalidArgumentException;
 
 class FinancialTransactionService
 {
@@ -16,10 +17,6 @@ class FinancialTransactionService
     public function createInvoice($data)
     {
         return DB::transaction(function () use ($data) {
-
-            if (empty($data['items'])) {
-                throw new Exception('Invoice harus memiliki minimal satu item');
-            }
 
             // hitung subtotal dari akumulasi item
             $subtotal = collect($data['items'])->sum('amount');
@@ -53,10 +50,6 @@ class FinancialTransactionService
             // simpan snapshot rincian item
             foreach ($data['items'] as $item) {
 
-                if (($item['amount'] ?? 0) < 0) {
-                    throw new Exception('Nominal item tidak boleh negatif.');
-                }
-
                 $invoice->items()->create([
                     'fee_component_id' => $item['fee_component_id'] ?? null,
                     'fee_name' => $item['fee_name'],
@@ -65,6 +58,64 @@ class FinancialTransactionService
             }
 
             return $invoice->load('items');
+        });
+    }
+
+    public function recordPayment($data, $userId)
+    {
+        return DB::transaction(function () use ($data, $userId) {
+            $invoice = Invoice::where('id', $data['invoice_id'])->lockForUpdate()->firstOrFail();
+
+            if ($invoice->status === 'paid') {
+                throw new InvalidArgumentException('Tagihan sudah lunas.');
+            }
+
+            if ($invoice->status === 'cancelled') {
+                throw new InvalidArgumentException('Tagihan telah dibatalkan.');
+            }
+
+            if ($data['amount'] > $invoice->outstanding_amount) {
+                throw new InvalidArgumentException('Nominal pembayaran melebihi sisa tunggakan tagihan.');
+            }
+
+            // catat pembayaran
+            $payment = Payment::create([
+                'receipt_number' => $this->paymentService->generateReceiptNumber(),
+                'invoice_id' => $invoice->id,
+                'recorded_by' => $userId,
+                'payment_date' => $data['payment_date'],
+                'amount' => $data['amount'],
+                'payment_method' => $data['payment_method'],
+                'status' => 'completed'
+            ]);
+
+            // recalculate invoice status & balance
+            $this->paymentService->updateInvoicePaymentStatus($invoice);
+
+            return $payment;
+        });
+    }
+
+    public function voidPayment(Payment $payment, $reason, $userId)
+    {
+        return DB::transaction(function () use ($payment, $reason, $userId) {
+            if ($payment->status !== 'completed') {
+                throw new InvalidArgumentException('Hanya pembayaran completed yang dibatalkan.');
+            }
+
+            // update status pembayaran menjadi VOIDED beserta audit log
+            $payment->update([
+                'status' => 'voided',
+                'voided_by' => $userId,
+                'voided_at' => now(),
+                'voided_reason' => $reason
+            ]);
+
+            // recalculate invoice status & balance
+            $invoice = Invoice::where('id', $payment->invoice_id)->lockForUpdate()->firstOrFail();
+            $this->paymentService->updateInvoicePaymentStatus($invoice);
+
+            return $payment;
         });
     }
 }
