@@ -12,7 +12,7 @@ class StoreInvoiceRequest extends FormRequest
      */
     public function authorize(): bool
     {
-        return $this->user()->role === 'admin';
+        return $this->user()?->role === 'admin';
     }
 
     public function rules(): array
@@ -27,14 +27,14 @@ class StoreInvoiceRequest extends FormRequest
             // aturan validasi diskon
             'discount_type' => ['nullable', 'string', 'in:percentage,fixed_amount'],
             'discount_rate' => [
-                'required_if:discount_type,percentage',
+                'prohibited_unless:discount_type,percentage',
                 'nullable',
                 'integer',
                 'min:1',
                 'max:100'
             ],
             'discount_amount' => [
-                'required_if:discount_type,fixed_amount',
+                'prohibited_unless:discount_type,fixed_amount',
                 'nullable',
                 'numeric',
                 'min:0'
@@ -61,6 +61,12 @@ class StoreInvoiceRequest extends FormRequest
             'discount_rate.max' => 'Persentase diskon maksimal adalah 100%.',
             'discount_amount.numeric' => 'Nominal diskon harus berupa angka.',
             'items.required' => 'Tagihan harus memiliki minimal satu rincian komponen biaya.',
+            'items.min' => 'Tagihan harus memiliki minimal satu rincian biaya.',
+            'items.*.fee_name.required' => 'Nama komponen biaya wajib diisi.',
+            'items.*.amount.required' => 'Nominal komponen biaya wajib diisi.',
+            'items.*.amount.min' => 'Nominal komponen biaya tidak boleh negatif.',
+            'discount_rate.required_if' => 'Persentase diskon wajib diisi jika tipe diskon adalah persentase.',
+            'discount_amount.required_if' => 'Nominal diskon wajib diisi jika tipe diskon adalah nominal.',
         ];
     }
 }

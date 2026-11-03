@@ -12,7 +12,7 @@ class StoreStudentRequest extends FormRequest
      */
     public function authorize(): bool
     {
-        return $this->user()->role === 'admin';
+        return $this->user()?->role === 'admin';
     }
 
     public function rules(): array
@@ -22,7 +22,7 @@ class StoreStudentRequest extends FormRequest
             'full_name' => ['required', 'string', 'max:255'],
             'gender' => ['required', 'in:L,P'],
             'date_of_birth' => ['nullable', 'date'],
-            'phone_number' => ['nullable', 'string', 'max: 20'],
+            'phone_number' => ['nullable', 'string', 'max:20'],
             'address' => ['nullable', 'string'],
             'parent_name' => ['nullable', 'string', 'max:255'],
             'parent_phone' => ['nullable', 'string', 'max:20'],
@@ -37,7 +37,12 @@ class StoreStudentRequest extends FormRequest
             'nis.required' => 'NIS siswa wajib diisi.',
             'nis.unique' => 'NIS siswa sudah terdaftar.',
             'full_name.required' => 'Nama lengkap siswa wajib diisi.',
-            'gender.in' => 'Jenis kelamin harus L (Laki-laki) atau P (Perempuan).'
+            'gender.in' => 'Jenis kelamin harus L (Laki-laki) atau P (Perempuan).',
+            'gender.required' => 'Jenis kelamin wajib dipilih.',
+            'phone_number.max' => 'Nomor telepon maksimal 20 karakter.',
+            'parent_phone.max' => 'Nomor telepon wali maksimal 20 karakter.',
+            'is_active.required' => 'Status siswa wajib dipilih.',
+            'is_active.boolean' => 'Status siswa tidak valid.',
         ];
     }
 }

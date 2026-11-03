@@ -12,7 +12,7 @@ class VoidPaymentRequest extends FormRequest
      */
     public function authorize(): bool
     {
-        return $this->user()->role === 'admin';
+        return $this->user()?->role === 'admin';
     }
 
     public function rules(): array
@@ -28,6 +28,7 @@ class VoidPaymentRequest extends FormRequest
         return [
             'void_reason.required' => 'Alasan pembatalan pembayaran wajib diisi.',
             'void_reason.min' => 'Alasan pembatalan minimal 5 karakter.',
+            'void_reason.max' => 'Alasan pembatalan maksimal 500 karakter.',
         ];
     }
 }

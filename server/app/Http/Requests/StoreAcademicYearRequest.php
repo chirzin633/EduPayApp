@@ -13,7 +13,7 @@ class StoreAcademicYearRequest extends FormRequest
      */
     public function authorize(): bool
     {
-        return $this->user()->role === 'admin';
+        return $this->user()?->role === 'admin';
     }
 
     /**
@@ -24,7 +24,7 @@ class StoreAcademicYearRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'name' => ['required', 'string', 'max:50', 'unique:academic_years, name'],
+            'name' => ['required', 'string', 'max:50', 'unique:academic_years,name'],
             'start_date' => ['required', 'date'],
             'end_date' => ['required', 'date', 'after:start_date'],
             'is_active' => ['nullable', 'boolean']
@@ -37,8 +37,13 @@ class StoreAcademicYearRequest extends FormRequest
         return [
             'name.required' => "Nama tahun ajaran wajib diisi.",
             'name.unique' => 'Nama tahun ajaran sudah terdaftar.',
+            'name.max' => 'Nama tahun ajaran maksimal 50 karakter',
+
             'start_date.required' => 'Tanggal mulai wajib diisi.',
+            'start_date.date' => 'Format tanggal mulai tidak valid.',
+
             'end_date.required' => 'Tanggal selesai wajib diisi.',
+            'end_date.date' => 'Format tanggal selesai tidak valid.',
             'end_date.after' => 'Tanggal selesai harus setelah tanggal mulai.'
         ];
     }
