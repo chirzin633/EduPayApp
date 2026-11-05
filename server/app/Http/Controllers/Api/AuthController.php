@@ -3,58 +3,40 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
-use App\Models\User;
+use App\Http\Resources\UserResource;
+use App\Services\AuthService;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Auth;
-use Illuminate\Validation\ValidationException;
 
 class AuthController extends Controller
 {
+    public function  __construct(protected AuthService $authService) {}
+
     public function login(Request $request)
     {
-        $validated = $request->validate([
+        $request->validate([
             'email' => ['required', 'email'],
             'password' => ['required']
         ]);
 
-        // validasi kredensial
-        if (!Auth::attempt($validated)) {
-            throw ValidationException::withMessages([
-                'email' => ['Email atau password salah.']
-            ]);
-        }
-
-        /** @var User $user */
-        $user = Auth::user();
-
-        // cek apakah akun aktif
-        if (!$user->is_active) {
-            Auth::logout();
-
-            return response()->json([
-                'message' => 'Akun anda telah dinonaktifkan. Hubungi administrator.'
-            ], 403);
-        }
-        // buat token sanctum
-        $token = $user->createToken('school-payment-token')->plainTextToken;
+        $result = $this->authService->login(
+            email: $request->input('email'),
+            password: $request->input('password')
+        );
 
         return response()->json([
             'message' => 'Login berhasil.',
             'data' => [
-                'user' => [
-                    'id' => $user->id,
-                    'name' => $user->name,
-                    'email' => $user->email,
-                    'role' => $user->role
-                ],
-                'token' => $token
+                'user' => new UserResource($result['user']),
+                'token' => $result['token']
             ]
         ]);
     }
 
     public function logout(Request $request)
     {
-        $request->user()->currentAccessToken()->delete();
+        $user = $request->user();
+
+        $this->authService->logout($user);
 
         return response()->json([
             'message' => 'Logout berhasil.',
@@ -66,13 +48,7 @@ class AuthController extends Controller
         $user = $request->user();
 
         return response()->json([
-            'data' => [
-                'id' => $user->id,
-                'name' => $user->name,
-                'email' => $user->email,
-                'role' => $user->role,
-                'is_active' => $user->is_active
-            ]
+            'data' => new UserResource($user)
         ]);
     }
 }
