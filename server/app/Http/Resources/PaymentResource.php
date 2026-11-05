@@ -24,7 +24,7 @@ class PaymentResource extends JsonResource
             'status' => $this->status,
             'recorded_by' => [
                 'id' => $this->recorder?->id,
-                'name' => $this->recorder->name
+                'name' => $this->recorder?->name
             ],
             'audit' => $this->when($this->status === 'voided', [
                 'voided_at' => $this->voided_at?->toIso8601String(),
