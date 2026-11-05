@@ -44,7 +44,7 @@ class Invoice extends Model
         return $this->belongsTo(Student::class);
     }
 
-    public function studentClassAssginment(): BelongsTo
+    public function studentClassAssignment(): BelongsTo
     {
         return $this->belongsTo(StudentClassAssignment::class);
     }

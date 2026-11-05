@@ -108,7 +108,7 @@ class FinancialTransactionService
                 'status' => 'voided',
                 'voided_by' => $userId,
                 'voided_at' => now(),
-                'voided_reason' => $reason
+                'void_reason' => $reason
             ]);
 
             // recalculate invoice status & balance
