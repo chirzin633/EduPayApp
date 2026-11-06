@@ -52,7 +52,7 @@ class ReportController extends Controller
             'per_page'
         ]);
 
-        $result = $this->reportService->outstandingBalance($filters);
+        $result = $this->reportService->outstandingBalances($filters);
 
         return response()->json([
             'data' => InvoiceResource::collection($result['data']),
