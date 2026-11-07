@@ -26,14 +26,17 @@ class PaymentResource extends JsonResource
                 'id' => $this->recorder?->id,
                 'name' => $this->recorder?->name
             ],
-            'audit' => $this->when($this->status === 'voided', [
-                'voided_at' => $this->voided_at?->toIso8601String(),
-                'void_reason' => $this->void_reason,
-                'void_by' => [
-                    'id' => $this->voider?->id,
-                    'name' => $this->voider?->name,
-                ],
-            ]),
+            'audit' => $this->when(
+                $this->status === 'voided' && $this->relationLoaded('voider'),
+                fn() => [
+                    'voided_at' => $this->voided_at?->toIso8601String(),
+                    'void_reason' => $this->void_reason,
+                    'void_by' => [
+                        'id' => $this->voider?->id,
+                        'name' => $this->voider?->name,
+                    ],
+                ]
+            ),
             'created_at' => $this->created_at?->toIso8601String(),
         ];
     }

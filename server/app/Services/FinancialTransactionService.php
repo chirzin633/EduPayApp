@@ -74,7 +74,11 @@ class FinancialTransactionService
                 throw new InvalidArgumentException('Tagihan telah dibatalkan.');
             }
 
-            if ($data['amount'] > $invoice->outstanding_amount) {
+            $amount = round((float) $data['amount'], 2);
+
+            $outstandingAmount = round((float) $invoice->outstanding_amount, 2);
+
+            if ($amount > $outstandingAmount) {
                 throw new InvalidArgumentException('Nominal pembayaran melebihi sisa tunggakan tagihan.');
             }
 
@@ -84,7 +88,7 @@ class FinancialTransactionService
                 'invoice_id' => $invoice->id,
                 'recorded_by' => $userId,
                 'payment_date' => $data['payment_date'],
-                'amount' => $data['amount'],
+                'amount' => $amount,
                 'payment_method' => $data['payment_method'],
                 'status' => 'completed'
             ]);

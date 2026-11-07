@@ -49,6 +49,11 @@ class Invoice extends Model
         return $this->belongsTo(StudentClassAssignment::class);
     }
 
+    public function academicYear(): BelongsTo
+    {
+        return $this->belongsTo(AcademicYear::class);
+    }
+
     public function items(): HasMany
     {
         return $this->hasMany(InvoiceItem::class);

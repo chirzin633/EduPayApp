@@ -8,6 +8,7 @@ use App\Http\Resources\InvoiceResource;
 use App\Models\Invoice;
 use App\Services\FinancialTransactionService;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 
 class InvoiceController extends Controller
 {
@@ -55,25 +56,34 @@ class InvoiceController extends Controller
 
     public function cancel(Invoice $invoice)
     {
-        if ($invoice->payments()->where('status', 'completed')->exists()) {
+
+        return DB::transaction(function () use ($invoice) {
+            $invoice = Invoice::lockForUpdate()->findOrFail($invoice->id);
+
+            if ($invoice->status === 'cancelled') {
+                return response()->json([
+                    'message' => 'Tagihan sudah dibatalkan sebelumnya.'
+                ], 422);
+            }
+
+            $hasCompletedPayment = $invoice->payments()
+                ->where('status', 'completed')
+                ->exists();
+
+            if ($hasCompletedPayment) {
+                return response()->json([
+                    'message' => 'Tagihan yang sudah memiliki transaksi pembayaran tidak dapat dibatalkan.'
+                ], 422);
+            }
+
+            $invoice->update([
+                'status' => 'cancelled'
+            ]);
+
             return response()->json([
-                'message' => 'Tagihan yang sudah memiliki transaksi pembayaran tidak dapat dibatalkan.'
-            ], 422);
-        }
-
-        if ($invoice->status === 'cancelled') {
-            return response()->json([
-                'message' => 'Tagihan sudah dibatalkan sebelumnya.'
-            ], 422);
-        }
-
-        $invoice->update([
-            'status' => 'cancelled'
-        ]);
-
-        return response()->json([
-            'message' => 'Tagihan berhasil dibatalkan.',
-            'data' => new InvoiceResource($invoice->fresh())
-        ]);
+                'message' => 'Tagihan berhasil dibatalkan.',
+                'data' => new InvoiceResource($invoice->fresh())
+            ]);
+        });
     }
 }

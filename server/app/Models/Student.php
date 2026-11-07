@@ -28,7 +28,7 @@ class Student extends Model
         'is_active' => 'boolean'
     ];
 
-    public function classAsignment(): HasMany
+    public function classAssignment(): HasMany
     {
         return $this->hasMany(StudentClassAssignment::class);
     }

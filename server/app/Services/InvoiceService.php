@@ -35,7 +35,8 @@ class InvoiceService
     {
         $prefix = 'INV-' . date("Ym") . '-';
         $lastInvoice = Invoice::where('invoice_number', 'like', $prefix . '%')
-            ->orderBy('id', 'desc')
+            ->lockForUpdate()
+            ->orderByDesc('id')
             ->first();
 
         if (!$lastInvoice) {

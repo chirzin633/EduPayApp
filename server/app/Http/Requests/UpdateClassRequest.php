@@ -20,7 +20,7 @@ class UpdateClassRequest extends FormRequest
         $id = $this->route('class')?->id ?? $this->route('class');
 
         return [
-            'code' => ['required', 'string', 'max:20', 'unique:classes,code' . $id],
+            'code' => ['required', 'string', 'max:20', 'unique:classes,code,' . $id],
             'name' => ['required', 'string', 'max:100'],
             'is_active' => ['nullable', 'boolean']
         ];

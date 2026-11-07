@@ -2,7 +2,9 @@
 
 namespace App\Http\Requests;
 
+use App\Models\StudentClassAssignment;
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Validation\Rule;
 use Override;
 
 class StoreInvoiceRequest extends FormRequest
@@ -27,22 +29,22 @@ class StoreInvoiceRequest extends FormRequest
             // aturan validasi diskon
             'discount_type' => ['nullable', 'string', 'in:percentage,fixed_amount'],
             'discount_rate' => [
-                'prohibited_unless:discount_type,percentage',
                 'nullable',
+                'required_if:discount_type,percentage',
                 'integer',
                 'min:1',
                 'max:100'
             ],
             'discount_amount' => [
-                'prohibited_unless:discount_type,fixed_amount',
                 'nullable',
+                'required_if:discount_type,fixed_amount',
                 'numeric',
                 'min:0'
             ],
 
             // validasi rincian biaya (item tagihan)
             'items' => ['required', 'array', 'min:1'],
-            'items.*.fee_component_id' => ['nullable', 'exists:fee_components,id'],
+            'items.*.fee_component_id' => ['nullable', Rule::exists('fee_components', 'id')->whereNull('deleted_at')],
             'items.*.fee_name' => ['required', 'string', 'max:255'],
             'items.*.amount' => ['required', 'numeric', 'min:0'],
         ];
@@ -67,6 +69,35 @@ class StoreInvoiceRequest extends FormRequest
             'items.*.amount.min' => 'Nominal komponen biaya tidak boleh negatif.',
             'discount_rate.required_if' => 'Persentase diskon wajib diisi jika tipe diskon adalah persentase.',
             'discount_amount.required_if' => 'Nominal diskon wajib diisi jika tipe diskon adalah nominal.',
+        ];
+    }
+
+    public function after()
+    {
+        return [
+            function ($validator) {
+                $assignment = StudentClassAssignment::find(
+                    $this->student_class_assignment_id
+                );
+
+                if (!$assignment) {
+                    return;
+                }
+
+                if ($assignment->student_id != $this->student_id) {
+                    $validator->errors()->add(
+                        'student_class_assignment_id',
+                        'Penempatan kelas tidak sesuai dengan siswa yang dipilih.'
+                    );
+                }
+
+                if ($assignment->academic_year_id != $this->academic_year_id) {
+                    $validator->errors()->add(
+                        'academic_year_id',
+                        'Tahun ajaran tidak sesuai dengan penempatan kelas siswa.'
+                    );
+                }
+            }
         ];
     }
 }

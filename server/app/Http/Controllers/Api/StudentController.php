@@ -46,9 +46,9 @@ class StudentController extends Controller
 
     public function show(Student $student)
     {
-        $student->load('classAsignment.academicYear', 'classAsignment.classModel');
+        $student->load('classAssignment.academicYear', 'classAssignment.classModel');
         return response()->json([
-            ['data' => new StudentResource($student)]
+            'data' => new StudentResource($student)
         ]);
     }
 

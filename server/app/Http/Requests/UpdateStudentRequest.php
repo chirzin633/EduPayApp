@@ -20,7 +20,7 @@ class UpdateStudentRequest extends FormRequest
         $id = $this->route('student')?->id ?? $this->route('student');
 
         return [
-            'nis' => ['required', 'string', 'max:50', 'unique:students,nis' . $id],
+            'nis' => ['required', 'string', 'max:50', 'unique:students,nis,' . $id],
             'full_name' => ['required', 'string', 'max:255'],
             'gender' => ['required', 'in:L,P'],
             'date_of_birth' => ['nullable', 'date'],

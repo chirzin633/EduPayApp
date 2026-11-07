@@ -11,7 +11,7 @@ class ReceiptService
     public function generate(Payment $payment)
     {
         // load relasi
-        $payment->load(['recorder', 'invoice.student', 'incvoice.academicYear', 'invoice.items']);
+        $payment->load(['recorder', 'invoice.student', 'invoice.academicYear', 'invoice.items']);
 
         $invoice = $payment->invoice;
         $assignment = $invoice->studentClassAssignment;

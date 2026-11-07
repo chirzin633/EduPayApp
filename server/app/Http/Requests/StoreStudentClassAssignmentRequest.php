@@ -4,6 +4,7 @@ namespace App\Http\Requests;
 
 use App\Models\StudentClassAssignment;
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Validation\Rule;
 use Override;
 
 class StoreStudentClassAssignmentRequest extends FormRequest
@@ -19,9 +20,9 @@ class StoreStudentClassAssignmentRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'student_id' => ['required', 'exists:students,id'],
+            'student_id' => ['required', Rule::exists('students', 'id')->whereNull('deleted_at')],
             'academic_year_id' => ['required', 'exists:academic_years,id'],
-            'class_id' => ['required', 'exists:classes,id']
+            'class_id' => ['required', Rule::exists('classes', 'id')->whereNull('deleted_at')]
         ];
     }
 

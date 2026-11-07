@@ -6,6 +6,7 @@ use App\Models\Invoice;
 use App\Models\Payment;
 use App\Models\Student;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Support\Facades\File;
 use InvalidArgumentException;
 
 class ReportService
@@ -41,34 +42,17 @@ class ReportService
             ->where('status', '!=', 'cancelled')
             ->where('outstanding_amount', '>', 0);
 
-        if (!empty($filters['academic_year_id'])) {
-            $query->where('academic_year_id', $filters['academic_year_id']);
-        }
-
-        if (!empty($filters['class_id'])) {
-            $query->whereHas('studentClassAssignment', function (Builder $q) use ($filters) {
-                $q->where('class_id', $filters['class_id']);
-            });
-        }
-
-        if (!empty($filters['search'])) {
-            $search = $filters['search'];
-            $query->whereHas('student', function (Builder $q) use ($search) {
-                $q->where('full_name', 'ilike', "%{$search}%")
-                    ->orWhere('nis', 'ilike', "%{$search}%");
-            });
-        }
+        $this->applyOutstandingFilters($query, $filters);
 
         $invoices = $query->orderByDesc('outstanding_amount')
             ->paginate($filters['per_page'] ?? 25);
 
         // ringkasan
-        $summaryQuery = Invoice::where('status', '!=', 'cancelled')
+        $summaryQuery = Invoice::query()
+            ->where('status', '!=', 'cancelled')
             ->where('outstanding_amount', '>', 0);
 
-        if (!empty($filters['academic_year_id'])) {
-            $summaryQuery->where('academic_year_id', $filters['academic_year_id']);
-        }
+        $this->applyOutstandingFilters($summaryQuery, $filters);
 
         $summary = [
             'total_students' => $summaryQuery->distinct('student_id')->count('student_id'),
@@ -89,7 +73,7 @@ class ReportService
             ->orderByDesc('academic_year_id')
             ->get();
 
-        $invoices = Invoice::with(['items', 'payment.recorder', 'payment.voider', 'academicYear'])
+        $invoices = Invoice::with(['items', 'payments.recorder', 'payments.voider', 'academicYear'])
             ->where('student_id', $student->id)
             ->orderByDesc('invoice_date')
             ->get();
@@ -107,41 +91,52 @@ class ReportService
         $filename = "exports/{$type}_" . date('Y-m-d_His') . '.csv';
 
         if ($type === 'payments') {
-            $result = $this->paymentReport(array_merge($filters, ['per_page' => 10000]));
+
+            $payments = $this->paymentExportData($filters);
+
             $headers = ['No. Kuitansi', 'Tanggal', 'NIS', 'Nama Siswa', 'Tahun Ajaran', 'Metode', 'Nominal', 'Petugas'];
 
-            $rows = collect($result['data']->items())->map(fn($p) => [
-                $p->receipt_number,
-                $p->payment_date?->format('Y-m-d'),
-                $p->invoice?->student?->nis,
-                $p->invoice?->student?->full_name,
-                $p->invoice?->academicYear?->name,
-                $p->payment_method,
-                $p->amount,
-                $p->recorder?->name
-            ]);
+            $rows = $payments->map(
+                fn($p) => [
+                    $p->receipt_number,
+                    $p->payment_date?->format('Y-m-d'),
+                    $p->invoice?->student?->nis,
+                    $p->invoice?->student?->full_name,
+                    $p->invoice?->academicYear?->name,
+                    $p->payment_method,
+                    $p->amount,
+                    $p->recorder?->name
+                ]
+            );
         } elseif ($type === 'outstanding') {
-            $result = $this->outstandingBalances(array_merge($filters, ['per_page' => 10000]));
+            $invoices = $this->outstandingExportData($filters);
+
             $headers = ['NIS', 'Nama Siswa', 'Kelas', 'Tahun Ajaran', 'No. Tagihan', 'Total Tagihan', 'Terbayar', 'Sisa Tunggakan'];
 
-            $rows = collect($result['data']->items())->map(fn($inv) => [
-                $inv->student?->nis,
-                $inv->student?->full_name,
-                $inv->studentClassAssignment?->classModel?->name,
-                $inv->academicYear?->name,
-                $inv->invoice_number,
-                $inv->total_amount,
-                $inv->paid_amount,
-                $inv->outstanding_amount,
-            ]);
+            $rows = $invoices->map(
+                fn($inv) => [
+                    $inv->student?->nis,
+                    $inv->student?->full_name,
+                    $inv->studentClassAssignment?->classModel?->name,
+                    $inv->academicYear?->name,
+                    $inv->invoice_number,
+                    $inv->total_amount,
+                    $inv->paid_amount,
+                    $inv->outstanding_amount,
+                ]
+            );
         } else {
-            throw new InvalidArgumentException("ipe export '{$type}' tidak valid.");
+            throw new InvalidArgumentException("Tipe export '{$type}' tidak valid.");
         }
+
+        File::ensureDirectoryExists(
+            storage_path('app/exports')
+        );
 
         $handle = fopen(storage_path("app/{$filename}"), 'w');
         fputcsv($handle, $headers);
         foreach ($rows as $row) {
-            fputcsv($handle, $row);
+            fputcsv($handle, $this->sanitizeCsvRow($row));
         }
         fclose($handle);
 
@@ -186,5 +181,64 @@ class ReportService
                     ->orWhere('nis', 'ilike', "%{$search}%");
             });
         }
+    }
+
+    private function applyOutstandingFilters(Builder $query, $filters)
+    {
+        if (!empty($filters['academic_year_id'])) {
+            $query->where('academic_year_id', $filters['academic_year_id']);
+        }
+
+        if (!empty($filters['class_id'])) {
+            $query->whereHas(
+                'studentClassAssignment',
+                fn(Builder $q) =>
+                $q->where('class_id', $filters['class_id'])
+            );
+        }
+
+        if (!empty($filters['search'])) {
+            $search = $filters['search'];
+
+            $query->whereHas('student', function (Builder $q) use ($search) {
+                $q->where('full_name', 'ilike', "%{$search}%")
+                    ->orWhere('nis', 'ilike', "%{$search}%");
+            });
+        }
+    }
+
+    private function paymentExportData($filters)
+    {
+        $query = Payment::with(['recorder', 'invoice.student', 'invoice.academicYear'])
+            ->where('status', 'completed');
+
+        $this->applyPaymentFilters($query, $filters);
+
+        return $query->orderByDesc('payment_date')->get();
+    }
+
+    private function outstandingExportData($filters)
+    {
+        $query = Invoice::with(['student', 'academicYear', 'studentClassAssignment.classModel'])
+            ->where('status', '!=', 'cancelled')
+            ->where('outstanding_amount', '>', 0);
+
+        $this->applyOutstandingFilters($query, $filters);
+
+        return $query->orderByDesc('outstanding_amount')->get();
+    }
+
+    private function sanitizeCsvRow($row)
+    {
+        return array_map(function ($value) {
+
+            if (!is_string($value)) {
+                return $value;
+            }
+
+            return preg_match('/^[=+\-@]/', $value)
+                ? "'" . $value
+                : $value;
+        }, $row);
     }
 }

@@ -61,7 +61,9 @@ class AcademicYearController extends Controller
 
         return response()->json([
             'message' => 'Tahun ajaran berhasil diupdate.',
-            $data => new AcademicYearResource($academicYear->fresh())
+            'data' => new AcademicYearResource(
+                $academicYear->fresh()
+            )
         ]);
     }
 }
