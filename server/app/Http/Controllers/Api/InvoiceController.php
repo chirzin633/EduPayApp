@@ -18,6 +18,11 @@ class InvoiceController extends Controller
     {
         $query = Invoice::with(['student', 'academicYear']);
 
+        $request->validate([
+            'student_id' => ['nullable', 'integer'],
+            'academic_year_id' => ['nullable', 'integer']
+        ]);
+
         if ($request->has('status')) {
             $query->where('status', $request->query('status'));
         }

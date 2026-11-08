@@ -5,6 +5,7 @@ namespace App\Services;
 use App\Models\Invoice;
 use App\Models\Payment;
 use App\Models\Student;
+use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Facades\File;
 use InvalidArgumentException;
@@ -167,11 +168,11 @@ class ReportService
         }
 
         if (!empty($filters['date_from'])) {
-            $query->where('payment_date', '>=', $filters['date_from']);
+            $query->where('payment_date', '>=', Carbon::parse($filters['date_from'])->startOfDay());
         }
 
         if (!empty($filters['date_to'])) {
-            $query->where('payment_date', '<=', $filters['date_to']);
+            $query->where('payment_date', '<=', Carbon::parse($filters['date_to'])->endOfDay());
         }
 
         if (!empty($filters['search'])) {

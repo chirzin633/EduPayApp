@@ -19,14 +19,14 @@ class RoleMiddleware
         if (!$request->user()) {
             return response()->json([
                 'message' => 'Authenticasi diperlukan.'
-            ]);
+            ], 401);
         }
 
         // cek apakah role user ada dalam daftar role yang diizinkan
         if (!in_array($request->user()->role, $roles)) {
             return response()->json([
                 'message' => 'Anda tidak memiliki izin untuk mengakses resource ini.'
-            ]);
+            ], 403);
         }
 
         return $next($request);

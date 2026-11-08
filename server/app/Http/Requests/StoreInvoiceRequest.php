@@ -14,15 +14,15 @@ class StoreInvoiceRequest extends FormRequest
      */
     public function authorize(): bool
     {
-        return $this->user()?->role === 'admin';
+        return $this->user()?->role === 'admin' || $this->user()?->role === 'principal';
     }
 
     public function rules(): array
     {
         return [
-            'student_id' => ['required', 'exists:students,id'],
-            'student_class_assignment_id' => ['required', 'exists:student_class_assignments,id'],
-            'academic_year_id' => ['required', 'exists:academic_years,id'],
+            'student_id' => ['required', Rule::exists('students', 'id')->whereNull('deleted_at')],
+            'student_class_assignment_id' => ['required', Rule::exists('student_class_assignments', 'id')],
+            'academic_year_id' => ['required', Rule::exists('academic_years', 'id')],
             'invoice_date' => ['required', 'date'],
             'due_date' => ['required', 'date', 'after_or_equal:invoice_date'],
 

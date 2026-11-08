@@ -19,6 +19,13 @@ class PaymentController extends Controller
     {
         $query = Payment::with(['recorder', 'voider']);
 
+        $request->validate([
+            'invoice_id' => ['nullable', 'integer'],
+            'per_page' => ['nullable', 'integer', 'min:1', 'max:100'],
+            'status' => ['nullable', 'in:completed,voided'],
+            'payment_method' => ['nullable', 'in:cash,bank_transfer', 'qris', 'debit_edc']
+        ]);
+
         if ($request->has('invoice_id')) {
             $query->where('invoice_id', $request->query('invoice_id'));
         }

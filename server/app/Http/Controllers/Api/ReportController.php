@@ -18,6 +18,16 @@ class ReportController extends Controller
     // laporan transaksi pembayaran
     public function paymentReport(Request $request)
     {
+        $request->validate([
+            'academic_year_id' => ['nullable', 'integer'],
+            'class_id' => ['nullable', 'integer'],
+            'payment_method' => ['nullable', 'in:cash,bank_transfer,qris,debit_edc'],
+            'date_from' => ['nullable', 'date'],
+            'date_to' => ['nullable', 'date'],
+            'per_page' => ['nullable', 'integer', 'min:1', 'max:100']
+        ]);
+
+
         $filters = $request->only([
             'academic_year_id',
             'class_id',
@@ -45,6 +55,13 @@ class ReportController extends Controller
     // laporan tunggakan
     public function outstandingBalances(Request $request)
     {
+
+        $request->validate([
+            'acadmic_year_id' => ['nullable', 'integer'],
+            'class_id' => ['nullable', 'integer'],
+            'per_page' => ['nullable', 'integer', 'min:1', 'max:100']
+        ]);
+
         $filters = $request->only([
             'academic_year_id',
             'class_id',
@@ -83,6 +100,16 @@ class ReportController extends Controller
     // export laporan ke csv
     public function export(Request $request, $type)
     {
+
+        $request->validate([
+            'academic_year_id' => ['nullable', 'integer'],
+            'class_id' => ['nullable', 'integer'],
+            'payment_method' => ['nullable', 'in:cash,bank_transfer,qris,debit_edc'],
+            'date_from' => ['nullable', 'date'],
+            'date_to' => ['nullable', 'date'],
+            'per_page' => ['nullable', 'integer', 'min:1', 'max:100']
+        ]);
+
         if (!in_array($type, ['payments', 'outstanding'])) {
             return response()->json([
                 'message' => "Tipe export '{$type}' tidak valid. Gunakan 'payments' atau 'outstanding'."

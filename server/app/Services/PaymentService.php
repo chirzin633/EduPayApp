@@ -12,7 +12,8 @@ class PaymentService
         $prefix = 'PAY-' . date('Ym') . '-';
 
         $lastPayment = Payment::where('receipt_number', 'like', $prefix . '%')
-            ->orderBy('id', 'desc')
+            ->lockForUpdate()
+            ->orderByDesc('id')
             ->first();
 
         if (!$lastPayment) {

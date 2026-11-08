@@ -14,6 +14,13 @@ class StudentClassAssignmentController extends Controller
     {
         $query = StudentClassAssignment::with(['student', 'academicYear', 'classModel']);
 
+        $request->validate([
+            'student_id' => ['nullable', 'integer'],
+            'class_id' => ['nullable', 'integer'],
+            'academic_year_id' => ['nullable', 'integer'],
+            'per_page' => ['nullable', 'integer', 'min:1', 'max:100']
+        ]);
+
         if ($request->filled('academic_year_id')) {
             $query->where('academic_year_id', $request->query('academic_year_id'));
         }

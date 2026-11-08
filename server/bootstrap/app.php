@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Middleware\ActiveUserMiddleware;
 use App\Http\Middleware\RoleMiddleware;
 use App\Models\ClassModel;
 use Illuminate\Foundation\Application;
@@ -16,7 +17,8 @@ return Application::configure(basePath: dirname(__DIR__))
     )
     ->withMiddleware(function (Middleware $middleware): void {
         $middleware->alias([
-            'role' => RoleMiddleware::class
+            'role' => RoleMiddleware::class,
+            'active' => ActiveUserMiddleware::class
         ]);
     })
     ->booted(function () {
