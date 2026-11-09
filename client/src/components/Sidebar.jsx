@@ -1,7 +1,9 @@
 import { useState } from "react";
 import { NavLink } from "react-router";
+import { useAuth } from "../context/AuthContext";
 
 export default function Sidebar({ isSidebarActive, toggleSidebar }) {
+  const { user, logout } = useAuth();
   const [openSubmenu, setOpenSubmenu] = useState(null);
 
   function toggleSubmenu(menu) {
@@ -10,14 +12,14 @@ export default function Sidebar({ isSidebarActive, toggleSidebar }) {
 
   return (
     <div id="sidebar" className={isSidebarActive ? "active" : ""}>
-      <div className="sidebar-wrapper active">
+      <div className="sidebar-wrapper active d-flex flex-column justify-content-between">
         {/* Logo Section */}
         <div className="sidebar-header position-relative">
           <div className="d-flex justify-content-between align-items-center">
             <div className="logo">
-              <a href="#">
-                <h4>EduPay</h4>
-              </a>
+              <NavLink to={"/"}>
+                <h4 className="text-primary fw-bold m-0">EduPay</h4>
+              </NavLink>
             </div>
 
             <div className="sidebar-toggler x">
@@ -36,11 +38,11 @@ export default function Sidebar({ isSidebarActive, toggleSidebar }) {
           <ul className="menu">
             <li className="sidebar-title">Menu Utama</li>
 
-            <li className="sidebar-item active">
-              <a href="#" className="sidebar-link">
+            <li className="sidebar-item">
+              <NavLink to={"/"} className="sidebar-link">
                 <i className="bi bi-speedometer"></i>
                 <span>Dashboard</span>
-              </a>
+              </NavLink>
             </li>
 
             <li className="sidebar-title">Siklus Pembayaran</li>
