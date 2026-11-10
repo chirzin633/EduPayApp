@@ -1,6 +1,7 @@
 import { useState } from "react";
 import Sidebar from "./Sidebar";
 import { useAuth } from "../context/AuthContext";
+import { Outlet } from "react-router";
 
 export default function MainLayout({ children }) {
   const { user, logout } = useAuth();
@@ -68,7 +69,9 @@ export default function MainLayout({ children }) {
           </div>
         </header>
 
-        <div className="page-content">{children}</div>
+        <div className="page-content">
+          <Outlet />
+        </div>
 
         <footer>
           <div className="footer clearfix mb-0 text-muted">

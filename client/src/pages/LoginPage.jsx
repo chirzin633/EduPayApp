@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useNavigate } from "react-router";
 import { useAuth } from "../context/AuthContext";
 import "../../public/mazer/compiled/css/auth.css";
 
@@ -11,6 +12,8 @@ export default function LoginPage() {
   const [fieldErrors, setFieldErrors] = useState({});
   const [isSubmitting, setIsSubmitting] = useState(false);
 
+  const navigate = useNavigate();
+
   async function handleSubmit(e) {
     e.preventDefault();
     setErrorMessage("");
@@ -19,7 +22,7 @@ export default function LoginPage() {
 
     try {
       await login(email, password);
-      window.location.href = "/";
+      navigate("/", { replace: true });
     } catch (error) {
       if (error.response) {
         const { status, data } = error.response;
