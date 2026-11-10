@@ -45,43 +45,56 @@ export default function Sidebar({ isSidebarActive, toggleSidebar }) {
               </NavLink>
             </li>
 
-            <li className="sidebar-title">Siklus Pembayaran</li>
-
-            <li
-              className={`sidebar-item has-sub ${openSubmenu === "pmb" ? "active" : ""}`}
-            >
-              <a
-                href="#"
-                className="sidebar-link"
-                onClick={() => toggleSubmenu("pmb")}
-              >
-                <i className="bi bi-person-add"></i>
-                <span>PMB & Pendaftaran</span>
-              </a>
-              <ul
-                className={`submenu ${openSubmenu === "pmb" ? "active" : ""}`}
-              >
-                <li className="submenu-item">
-                  <a href="#">Data Calon Siswa</a>
+            {/* Menu Khusus Admin */}
+            {user?.role === "admin" && (
+              <>
+                <li className="sidebar-title">Master Data</li>
+                <li className="sidebar-item">
+                  <NavLink to="/academic-years" className="sidebar-link">
+                    <i className="bi bi-calendar-event"></i>
+                    <span>Tahun Ajaran</span>
+                  </NavLink>
                 </li>
-                <li className="submenu-item">
-                  <a href="#">Formulir & Bayar</a>
+                <li className="sidebar-item">
+                  <NavLink to="/classes" className="sidebar-link">
+                    <i className="bi bi-door-open"></i>
+                    <span>Data Kelas</span>
+                  </NavLink>
                 </li>
-              </ul>
-            </li>
+                <li className="sidebar-item">
+                  <NavLink to="/students" className="sidebar-link">
+                    <i className="bi bi-people"></i>
+                    <span>Data Siswa</span>
+                  </NavLink>
+                </li>
+                <li className="sidebar-item">
+                  <NavLink to="/fee-components" className="sidebar-link">
+                    <i className="bi bi-receipt-cutoff"></i>
+                    <span>Komponen Biaya</span>
+                  </NavLink>
+                </li>
+              </>
+            )}
 
+            {/* Menu Operasional Pembayaran */}
+            <li className="sidebar-title">Transaksi & Laporan</li>
             <li className="sidebar-item">
-              <a href="#" className="sidebar-link">
-                <i className="bi bi-credit-card-fill"></i>
-                <span>Kasir & Pembayaran</span>
-              </a>
+              <NavLink to="/invoices" className="sidebar-link">
+                <i className="bi bi-file-earmark-text"></i>
+                <span>Tagihan (Invoice)</span>
+              </NavLink>
             </li>
-
             <li className="sidebar-item">
-              <a href="#" className="sidebar-link">
-                <i className="bi bi-archive-fill"></i>
-                <span>Laporan</span>
-              </a>
+              <NavLink to="/payments" className="sidebar-link">
+                <i className="bi bi-credit-card"></i>
+                <span>Kasir / Pembayaran</span>
+              </NavLink>
+            </li>
+            <li className="sidebar-item">
+              <NavLink to="/reports" className="sidebar-link">
+                <i className="bi bi-bar-chart-line"></i>
+                <span>Laporan Keuangan</span>
+              </NavLink>
             </li>
           </ul>
         </div>

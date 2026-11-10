@@ -3,6 +3,7 @@ import MainLayout from "./components/MainLayout";
 import LoginPage from "./pages/LoginPage";
 import ProtectedRoute from "./components/ProtectedRoute";
 import { BrowserRouter, Navigate, Route, Routes } from "react-router";
+import DashboardPage from "./pages/DashboardPage";
 
 export default function App() {
   return (
@@ -34,19 +35,5 @@ export default function App() {
         </Routes>
       </BrowserRouter>
     </AuthProvider>
-  );
-}
-
-function DashboardPage() {
-  return (
-    <div className="card">
-      <div className="card-header">
-        <h4>Dashboard Page</h4>
-      </div>
-
-      <div className="card-body">
-        Selamat datang di Sistem Manajemen Pembayaran Sekolah
-      </div>
-    </div>
   );
 }

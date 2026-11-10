@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { useAuth } from "../context/AuthContext";
+import "../../public/mazer/compiled/css/auth.css";
 
 export default function LoginPage() {
   const { login } = useAuth();

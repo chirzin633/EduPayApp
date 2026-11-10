@@ -12,5 +12,5 @@ export default function ProtectedRoute({ allowedRoles }) {
     return <Navigate to={"/"} replace />;
   }
 
-  return { Outlet };
+  return <Outlet />;
 }
