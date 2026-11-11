@@ -10,6 +10,8 @@ import ClassesPage from "./pages/ClassesPage";
 import ClassFormPage from "./components/ClassesForm";
 import StudentsPage from "./pages/StudentPage";
 import StudentForm from "./components/StudentForm";
+import FeeComponentPage from "./pages/FeeComponentPage";
+import FeeComponentForm from "./components/FeeComponentForm";
 
 export default function App() {
   return (
@@ -57,6 +59,13 @@ export default function App() {
               <Route path="/students" element={<StudentsPage />} />
               <Route path="/students/create" element={<StudentForm />} />
               <Route path="/students/:id/edit" element={<StudentForm />} />
+
+              {/* Fee Components */}
+              <Route path="/fee-components" element={<FeeComponentPage />} />
+              <Route
+                path="/fee-components/create"
+                element={<FeeComponentForm />}
+              />
             </Route>
           </Route>
 

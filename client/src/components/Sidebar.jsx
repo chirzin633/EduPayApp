@@ -40,7 +40,7 @@ export default function Sidebar({ isSidebarActive, toggleSidebar }) {
 
             <li className="sidebar-item">
               <NavLink to={"/"} className="sidebar-link">
-                <i className="bi bi-speedometer"></i>
+                <i class="bi bi-speedometer"></i>
                 <span>Dashboard</span>
               </NavLink>
             </li>
