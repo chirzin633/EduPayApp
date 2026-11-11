@@ -59,7 +59,7 @@ export default function ClassForm() {
 
     fetchClasses();
 
-    return () => controller.abort;
+    return () => controller.abort();
   }, [id, isEditing]);
 
   function handleInputChange(e) {
