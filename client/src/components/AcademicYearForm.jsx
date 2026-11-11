@@ -80,18 +80,15 @@ export default function AcademicYearsForm() {
     try {
       if (isEditing) {
         await api.put(`/academic-years/${id}`, formData);
-        sessionStorage.setItem(
-          "academic_years_flash",
-          "Tahun ajaran berhasil diperbaharui",
-        );
+        navigate("/academic-years", {
+          state: { flash: "Tahun ajaran berhasil diperbaharui" },
+        });
       } else {
         await api.post("/academic-years", formData);
-        sessionStorage.setItem(
-          "academic_years_flash",
-          "Tahun ajaran berhasil ditambahkan.",
-        );
+        navigate("/academic-years", {
+          state: { flash: "Tahun ajaran berhasil ditambahkan." },
+        });
       }
-      navigate("/academic-years");
     } catch (error) {
       if (error.response?.status === 422) {
         const data = error.response.data;

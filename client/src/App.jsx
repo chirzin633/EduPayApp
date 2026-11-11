@@ -6,6 +6,8 @@ import { BrowserRouter, Navigate, Outlet, Route, Routes } from "react-router";
 import DashboardPage from "./pages/DashboardPage";
 import AcademicYearsPage from "./pages/AcademicYearsPage";
 import AcademicYearsForm from "./components/AcademicYearForm";
+import ClassesPage from "./pages/ClassesPage";
+import ClassFormPage from "./components/ClassesForm";
 
 export default function App() {
   return (
@@ -33,6 +35,7 @@ export default function App() {
           {/* Protected Routes Khusus Admin */}
           <Route element={<ProtectedRoute allowedRoles={["admin"]} />}>
             <Route element={<MainLayout />}>
+              {/* Academic Years */}
               <Route path="/academic-years" element={<AcademicYearsPage />} />
               <Route
                 path="/academic-years/create"
@@ -42,6 +45,11 @@ export default function App() {
                 path="/academic-years/:id/edit"
                 element={<AcademicYearsForm />}
               />
+
+              {/* Classes */}
+              <Route path="/classes" element={<ClassesPage />} />
+              <Route path="/classes/create" element={<ClassFormPage />} />
+              <Route path="/classes/:id/edit" element={<ClassFormPage />} />
             </Route>
           </Route>
 
