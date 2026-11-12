@@ -40,7 +40,7 @@ export default function Sidebar({ isSidebarActive, toggleSidebar }) {
 
             <li className="sidebar-item">
               <NavLink to={"/"} className="sidebar-link">
-                <i class="bi bi-speedometer"></i>
+                <i className="bi bi-speedometer"></i>
                 <span>Dashboard</span>
               </NavLink>
             </li>
@@ -65,6 +65,15 @@ export default function Sidebar({ isSidebarActive, toggleSidebar }) {
                   <NavLink to="/students" className="sidebar-link">
                     <i className="bi bi-people"></i>
                     <span>Data Siswa</span>
+                  </NavLink>
+                </li>
+                <li className="sidebar-item">
+                  <NavLink
+                    to="/student-class-assignments"
+                    className="sidebar-link"
+                  >
+                    <i className="bi bi-diagram-3"></i>
+                    <span>Penempatan Kelas</span>
                   </NavLink>
                 </li>
                 <li className="sidebar-item">
