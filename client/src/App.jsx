@@ -14,6 +14,9 @@ import FeeComponentPage from "./pages/FeeComponentPage";
 import FeeComponentForm from "./components/FeeComponentForm";
 import StudentClassAssignmentsPage from "./pages/StudentClassAssignmentsPage";
 import StudentClassAssignmentsForm from "./components/StudentClassAssignmentsForm";
+import InvoicePage from "./pages/InvoicePage";
+import InvoiceForm from "./components/InvoiceForm";
+import InvoiceDetail from "./components/InvoiceDetail";
 
 export default function App() {
   return (
@@ -27,14 +30,11 @@ export default function App() {
           <Route
             element={<ProtectedRoute allowedRoles={["admin", "principal"]} />}
           >
-            <Route
-              element={
-                <MainLayout>
-                  <Outlet />
-                </MainLayout>
-              }
-            >
+            <Route element={<MainLayout />}>
               <Route path="/" element={<DashboardPage />} />
+              <Route path="/invoices" element={<InvoicePage />} />
+              <Route path="/invoices/create" element={<InvoiceForm />} />
+              <Route path="'/invoices/:id" element={<InvoiceDetail />} />
             </Route>
           </Route>
 
