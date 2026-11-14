@@ -17,6 +17,8 @@ import StudentClassAssignmentsForm from "./components/StudentClassAssignmentsFor
 import InvoicePage from "./pages/InvoicePage";
 import InvoiceForm from "./components/InvoiceForm";
 import InvoiceDetail from "./components/InvoiceDetail";
+import PaymentPage from "./pages/PaymentPage";
+import PaymentForm from "./components/PaymentForm";
 
 export default function App() {
   return (
@@ -35,6 +37,7 @@ export default function App() {
               <Route path="/invoices" element={<InvoicePage />} />
               <Route path="/invoices/create" element={<InvoiceForm />} />
               <Route path="'/invoices/:id" element={<InvoiceDetail />} />
+              <Route path="/payments" element={<PaymentPage />} />
             </Route>
           </Route>
 
@@ -78,6 +81,9 @@ export default function App() {
                 path="/student-class-assignments/create"
                 element={<StudentClassAssignmentsForm />}
               />
+
+              {/* Payments */}
+              <Route path="/payments/create" element={<PaymentForm />} />
             </Route>
           </Route>
 
