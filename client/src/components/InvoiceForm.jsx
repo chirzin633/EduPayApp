@@ -123,6 +123,7 @@ export default function InvoiceForm() {
 
         if (list.length === 1) {
           setFormData((prev) => ({
+            ...prev,
             student_class_assignment_id: String(list[0].id),
             academic_year_id: String(list[0].academic_year?.id ?? ""),
           }));

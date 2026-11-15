@@ -70,7 +70,7 @@ export default function PaymentForm() {
     return () => {
       controller.abort();
     };
-  });
+  }, []);
 
   const selectedInvoice = useMemo(
     () =>
@@ -123,7 +123,7 @@ export default function PaymentForm() {
     setIsSubmitting(true);
     try {
       await api.post("/payments", {
-        invoices_id: Number(formData.invoice_id),
+        invoice_id: Number(formData.invoice_id),
         payment_date: formData.payment_date,
         amount: amountNum,
         payment_method: formData.payment_method,
@@ -216,7 +216,7 @@ export default function PaymentForm() {
                       {invoices.map((invoice) => (
                         <option key={invoice.id} value={invoice.id}>
                           {invoice.invoice_number} —{" "}
-                          {inv.student?.full_name ?? "-"} (sisa:{" "}
+                          {invoice.student?.full_name ?? "-"} (sisa:{" "}
                           {formatRupiah(invoice.outstanding_amount)})
                         </option>
                       ))}
