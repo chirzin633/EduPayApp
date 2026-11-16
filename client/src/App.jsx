@@ -19,6 +19,7 @@ import InvoiceForm from "./components/InvoiceForm";
 import InvoiceDetail from "./components/InvoiceDetail";
 import PaymentPage from "./pages/PaymentPage";
 import PaymentForm from "./components/PaymentForm";
+import ReportsPage from "./pages/ReportsPage";
 
 export default function App() {
   return (
@@ -38,6 +39,7 @@ export default function App() {
               <Route path="/invoices/create" element={<InvoiceForm />} />
               <Route path="/invoices/:id" element={<InvoiceDetail />} />
               <Route path="/payments" element={<PaymentPage />} />
+              <Route path="/reports" element={<ReportsPage />} />
             </Route>
           </Route>
 
