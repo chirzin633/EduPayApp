@@ -187,7 +187,6 @@ export default function StudentForm() {
                       maxLength={50}
                       value={formData.nis}
                       onChange={handleInputChange}
-                      required
                     />
                     {fieldErrors.nis ? (
                       <div className="invalid-feedback">
@@ -216,7 +215,6 @@ export default function StudentForm() {
                       maxLength={255}
                       value={formData.full_name}
                       onChange={handleInputChange}
-                      required
                     />
                     {fieldErrors.full_name && (
                       <div className="invalid-feedback">

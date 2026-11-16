@@ -159,7 +159,6 @@ export default function AcademicYearsForm() {
                       placeholder="Contoh: 2026/2027"
                       value={formData.name}
                       onChange={handleInputChange}
-                      required
                     />
                     {fieldErrors.name && (
                       <div className="invalid-feedback">
@@ -204,7 +203,6 @@ export default function AcademicYearsForm() {
                       className={`form-control ${fieldErrors.start_date ? "is-invalid" : ""}`}
                       value={formData.start_date}
                       onChange={handleInputChange}
-                      required
                     />
                     {fieldErrors.start_date && (
                       <div className="invalid-feedback">
@@ -226,7 +224,6 @@ export default function AcademicYearsForm() {
                       className={`form-control ${fieldErrors.end_date ? "is-invalid" : ""}`}
                       value={formData.end_date}
                       onChange={handleInputChange}
-                      required
                     />
                     {fieldErrors.end_date && (
                       <div className="invalid-feedback">

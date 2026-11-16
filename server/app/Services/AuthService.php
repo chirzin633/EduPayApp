@@ -3,6 +3,7 @@
 namespace App\Services;
 
 use App\Models\User;
+use Illuminate\Auth\AuthenticationException;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Validation\ValidationException;
 use Laravel\Sanctum\PersonalAccessToken;
@@ -15,9 +16,7 @@ class AuthService
 
         // validasi kredensial
         if (!$user || !Hash::check($password, $user->password)) {
-            throw ValidationException::withMessages([
-                'email' => ['Email atau password salah.']
-            ]);
+            throw new AuthenticationException('Email atau password salah.');
         }
 
         // cek status aktif
@@ -28,7 +27,7 @@ class AuthService
         }
 
         // create token
-        $token = $user->createToken('school-payment-token')->plainTextToken;
+        $token = $user->createToken('school-payment-token', ['*'], now()->addDays(7))->plainTextToken;
 
         return [
             'user' => $user,

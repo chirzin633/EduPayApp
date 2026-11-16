@@ -159,7 +159,6 @@ export default function ClassForm() {
                       maxLength={20}
                       value={formData.code}
                       onChange={handleInputChange}
-                      required
                     />
                     {fieldErrors.code ? (
                       <div className="invalid-feedback">
@@ -188,7 +187,6 @@ export default function ClassForm() {
                       maxLength={20}
                       value={formData.name}
                       onChange={handleInputChange}
-                      required
                     />
                     {fieldErrors.name ? (
                       <div className="invalid-feedback">

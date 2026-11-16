@@ -82,7 +82,6 @@ export default function LoginPage() {
                     placeholder="Email"
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
-                    required
                     disabled={isSubmitting}
                   />
 
@@ -104,7 +103,6 @@ export default function LoginPage() {
                     placeholder="Password"
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
-                    required
                     disabled={isSubmitting}
                   />
 

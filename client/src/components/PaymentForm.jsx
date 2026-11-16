@@ -206,7 +206,6 @@ export default function PaymentForm() {
                       value={formData.invoice_id}
                       onChange={handleInvoiceChange}
                       disabled={loadingInvoices}
-                      required
                     >
                       <option value="">
                         {loadingInvoices
@@ -274,7 +273,6 @@ export default function PaymentForm() {
                       className={`form-control ${fieldErrors.payment_date ? "is-invalid" : ""}`}
                       value={formData.payment_date}
                       onChange={handleInputChange}
-                      required
                     />
                     {fieldErrors.payment_date && (
                       <div className="invalid-feedback">
@@ -300,7 +298,6 @@ export default function PaymentForm() {
                       value={formData.amount}
                       onChange={handleInputChange}
                       placeholder="0"
-                      required
                     />
                     {fieldErrors.amount ? (
                       <div className="invalid-feedback">
@@ -329,7 +326,6 @@ export default function PaymentForm() {
                       className={`form-select ${fieldErrors.payment_date ? "is-invalid" : ""}`}
                       value={formData.payment_method}
                       onChange={handleInputChange}
-                      required
                     >
                       {METHODS.map((method) => (
                         <option value={method.value} key={method.value}>

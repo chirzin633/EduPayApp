@@ -116,7 +116,6 @@ export default function FeeComponentForm() {
                       maxLength={100}
                       value={formData.name}
                       onChange={handleInputChange}
-                      required
                     />
                     {fieldErrors.name ? (
                       <div className="invalid-feedback">
@@ -147,7 +146,6 @@ export default function FeeComponentForm() {
                       step={1}
                       value={formData.default_amount}
                       onChange={handleInputChange}
-                      required
                     />
                     {fieldErrors.default_amount ? (
                       <div className="invalid-feedback">

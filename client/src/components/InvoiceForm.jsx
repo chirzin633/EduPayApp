@@ -386,7 +386,6 @@ export default function InvoiceForm() {
                       className={`form-select ${fieldErrors.student_id ? "is-invalid" : ""}`}
                       value={formData.student_id}
                       onChange={handleFormChange}
-                      required
                     >
                       <option value="">— Pilih Siswa —</option>
                       {students.map((student) => (
@@ -417,7 +416,6 @@ export default function InvoiceForm() {
                       className={`form-select ${fieldErrors.student_class_assignment_id ? "is-invalid" : ""}`}
                       value={formData.student_class_assignment_id}
                       onChange={handleAssignmentsChange}
-                      required
                       disabled={!formData.student_id || loadingAssignments}
                     >
                       <option value="">
@@ -505,7 +503,6 @@ export default function InvoiceForm() {
                       className={`form-control ${fieldErrors.invoice_date ? "is-invalid" : ""}`}
                       value={formData.invoice_date}
                       onChange={handleFormChange}
-                      required
                     />
                     {fieldErrors.invoice_date && (
                       <div className="invalid-feedback">
@@ -528,7 +525,6 @@ export default function InvoiceForm() {
                       value={formData.due_date}
                       onChange={handleFormChange}
                       min={formData.invoice_date}
-                      required
                     />
                     {fieldErrors.due_date && (
                       <div className="invalid-feedback">
@@ -618,7 +614,6 @@ export default function InvoiceForm() {
                                 )
                               }
                               placeholder="Nama item"
-                              required
                             />
                           </td>
                           <td>
@@ -632,7 +627,6 @@ export default function InvoiceForm() {
                                 handleItemChange(idx, "amount", e.target.value)
                               }
                               placeholder="0"
-                              required
                             />
                             {rowErr && (
                               <div className="invalid-feedback d-block">
@@ -708,7 +702,6 @@ export default function InvoiceForm() {
                         step={1}
                         value={formData.discount_rate}
                         onChange={handleFormChange}
-                        required
                       />
                       {fieldErrors.discount_rate && (
                         <div className="invalid-feedback">
@@ -734,7 +727,6 @@ export default function InvoiceForm() {
                         step={1}
                         value={formData.discount_amount}
                         onChange={handleFormChange}
-                        required
                       />
                       {fieldErrors.discount_amount && (
                         <div className="invalid-feedback">
