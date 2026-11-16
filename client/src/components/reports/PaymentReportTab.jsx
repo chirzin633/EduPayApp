@@ -84,7 +84,7 @@ export default function PaymentReportTab() {
     try {
       const params = new URLSearchParams();
       params.append("page", page);
-      Object.entries(f).forEach((key, value) => {
+      Object.entries(f).forEach(([key, value]) => {
         if (value !== "") {
           params.append(key, value);
         }
@@ -92,8 +92,8 @@ export default function PaymentReportTab() {
 
       const res = await api.get(`/reports/payments?${params.toString()}`);
       setData(res.data.data ?? []);
-      setMeta(res.data.meta ?? []);
-      setSummary(res.data.summary ?? []);
+      setMeta(res.data.meta ?? null);
+      setSummary(res.data.summary ?? null);
     } catch {
       setErrorMessage("Gagal memuat laporan pembayaran.");
     } finally {
@@ -137,7 +137,7 @@ export default function PaymentReportTab() {
 
       if (error.response?.data instanceof Blob) {
         try {
-          const text = await error.message.data.text();
+          const text = await error.response.data.text();
           const json = JSON.parse(text);
           message = json.message || message;
         } catch {}
@@ -162,8 +162,8 @@ export default function PaymentReportTab() {
   return (
     <div>
       {/* filter */}
-      <form onSubmit={applyFilter} className="row g-2 mb-3">
-        <div className="col-md-3 col-12">
+      <form onSubmit={applyFilter} className="row g-2 mb-3 align-items-end">
+        <div className="col-md-4 col-12">
           <select
             name="academic_year_id"
             id="academic_year_id"
@@ -202,7 +202,7 @@ export default function PaymentReportTab() {
             type="text"
             name="search"
             className="form-control"
-            placeholder="Cari nama / NIS siswa..."
+            placeholder="Cari No. Kwitansi /  Nama / NIS..."
             value={filter.search}
             onChange={handleFilterChange}
           />

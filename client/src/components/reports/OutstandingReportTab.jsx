@@ -156,7 +156,7 @@ export default function OutstandingReportTab() {
   return (
     <div>
       {/* filter */}
-      <form onSubmit={appliedFilter} className="row g-2 mb-3">
+      <form onSubmit={applyFilter} className="row g-2 mb-3">
         <div className="col-md-4 col-12">
           <select
             name="academic_year_id"

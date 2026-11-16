@@ -24,6 +24,7 @@ class ReportController extends Controller
             'payment_method' => ['nullable', 'in:cash,bank_transfer,qris,debit_edc'],
             'date_from' => ['nullable', 'date'],
             'date_to' => ['nullable', 'date'],
+            'search' => ['nullable', 'string', 'max:100'],
             'per_page' => ['nullable', 'integer', 'min:1', 'max:100']
         ]);
 
@@ -55,10 +56,10 @@ class ReportController extends Controller
     // laporan tunggakan
     public function outstandingBalances(Request $request)
     {
-
         $request->validate([
-            'acadmic_year_id' => ['nullable', 'integer'],
+            'academic_year_id' => ['nullable', 'integer'],
             'class_id' => ['nullable', 'integer'],
+            'search' => ['nullable', 'string', 'max:100'],
             'per_page' => ['nullable', 'integer', 'min:1', 'max:100']
         ]);
 

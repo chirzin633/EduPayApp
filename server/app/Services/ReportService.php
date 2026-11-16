@@ -177,9 +177,17 @@ class ReportService
 
         if (!empty($filters['search'])) {
             $search = $filters['search'];
-            $query->whereHas('invoice.student', function (Builder $q) use ($search) {
-                $q->where('full_name', 'ilike', "%{$search}%")
-                    ->orWhere('nis', 'ilike', "%{$search}%");
+            // $query->whereHas('invoice.student', function (Builder $q) use ($search) {
+            //     $q->where('full_name', 'ilike', "%{$search}%")
+            //         ->orWhere('nis', 'ilike', "%{$search}%");
+            // });
+
+            $query->where(function (Builder $q) use ($search) {
+                $q->where('receipt_number', 'ilike', "%{$search}%")
+                    ->orWhereHas('invoice.student', function (Builder $studentQuery) use ($search) {
+                        $studentQuery->where('full_name', 'ilike', "%{$search}%")
+                            ->orWhere('nis', 'ilike', "%{$search}%");
+                    });
             });
         }
     }

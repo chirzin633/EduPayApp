@@ -104,6 +104,7 @@ export default function StudentHistoryTab() {
 
   function handleSelect(e) {
     const id = e.target.value;
+    setSelectedId(id);
 
     if (id) {
       setSearchParams({ studentId: id }, { replace: true });
@@ -141,7 +142,7 @@ export default function StudentHistoryTab() {
     );
 
     return {
-      totalinvoices: invoices.length,
+      totalInvoices: invoices.length,
       totalInvoiced,
       totalPaid,
       totalOutstanding,
@@ -265,212 +266,216 @@ export default function StudentHistoryTab() {
               </div>
             </div>
           )}
-        </>
-      )}
 
-      {/* Riwayat Kelas */}
-      <section className="section mb-3">
-        <div className="card">
-          <div className="card-header">
-            <h5 className="card-title mb-0">
-              <i className="bi bi-diagram-3 me-2"></i> Riwayat Penempatan Kelas
-            </h5>
-          </div>
-          <div className="card-body">
-            {(history.class_history ?? []).length === 0 ? (
-              <p className="text-muted mb-0">Belum ada penempatan kelas.</p>
-            ) : (
-              <div className="table-responsive">
-                <table className="table mb-0">
-                  <thead>
-                    <tr>
-                      <th>Tahun Ajaran</th>
-                      <th>Kelas</th>
-                      <th>Ditambahkan</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {history.class_history.map((h) => (
-                      <tr key={h.id}>
-                        <td>{h.academic_year?.name ?? "-"}</td>
-                        <td>
-                          {h.class_model?.code ?? "-"} —{" "}
-                          {h.class_model?.name ?? ""}
-                        </td>
-                        <td className="text-muted small">
-                          {h.created_at
-                            ? new Date(h.created_at).toLocaleDateString("id-ID")
-                            : "-"}
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
+          {/* Riwayat Kelas */}
+          <section className="section mb-3">
+            <div className="card">
+              <div className="card-header">
+                <h5 className="card-title mb-0">
+                  <i className="bi bi-diagram-3 me-2"></i> Riwayat Penempatan
+                  Kelas
+                </h5>
               </div>
-            )}
-          </div>
-        </div>
-      </section>
+              <div className="card-body">
+                {(history.class_history ?? []).length === 0 ? (
+                  <p className="text-muted mb-0">Belum ada penempatan kelas.</p>
+                ) : (
+                  <div className="table-responsive">
+                    <table className="table mb-0">
+                      <thead>
+                        <tr>
+                          <th>Tahun Ajaran</th>
+                          <th>Kelas</th>
+                          <th>Ditambahkan</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {history.class_history.map((h) => (
+                          <tr key={h.id}>
+                            <td>{h.academic_year?.name ?? "-"}</td>
+                            <td>
+                              {h.class_model?.code ?? "-"} —{" "}
+                              {h.class_model?.name ?? ""}
+                            </td>
+                            <td className="text-muted small">
+                              {h.created_at
+                                ? new Date(h.created_at).toLocaleDateString(
+                                    "id-ID",
+                                  )
+                                : "-"}
+                            </td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
+                )}
+              </div>
+            </div>
+          </section>
 
-      {/* invoices & payments */}
-      <section className="section mb-3">
-        <div className="card">
-          <div className="card-header">
-            <h5 className="card-title mb-0">
-              <i className="bi bi-file-earmark-text me-2"></i> Riwayat Tagihan
-            </h5>
-          </div>
-          <div className="card-body">
-            {(history.invoices ?? []).length === 0 ? (
-              <p className="text-muted mb-0">Belum ada tagihan.</p>
-            ) : (
-              <div className="accordion" id="invoicesAccordion">
-                {history.invoices.map((inv, idx) => {
-                  const s = STATUS_LABELS[inv.status] ?? {
-                    label: inv.status,
-                    class: "bg-secondary",
-                  };
-                  const collapseId = `inv-collapse-${inv.id}`;
-                  return (
-                    <div className="accordion-item" key={inv.id}>
-                      <h2
-                        className="accordion-header"
-                        id={`inv-heading-${inv.id}`}
-                      >
-                        <button
-                          className="accordion-button collapsed"
-                          type="button"
-                          data-bs-toggle="collapse"
-                          data-bs-target={`#${collapseId}`}
-                          aria-expanded="false"
-                          aria-controls={collapseId}
-                        >
-                          <div className="d-flex justify-content-between w-100 me-3 flex-wrap gap-2">
-                            <span className="fw-bold">
-                              {inv.invoice_number}
-                            </span>
-                            <span className="text-muted small">
-                              {inv.invoice_date} —{" "}
-                              {inv.academic_year?.name ?? "-"}
-                            </span>
-                            <span className={`badge ${s.class}`}>
-                              {s.label}
-                            </span>
-                            <span className="text-danger">
-                              Sisa: {formatRupiah(inv.outstanding_amount)}
-                            </span>
-                          </div>
-                        </button>
-                      </h2>
-                      <div
-                        id={collapseId}
-                        className="accordion-collapse collapse"
-                        aria-labelledby={`inv-heading-${inv.id}`}
-                        data-bs-parent="#invoicesAccordion"
-                      >
-                        <div className="accordion-body">
-                          {/* Items */}
-                          <h6 className="fw-bold">Item</h6>
-                          <table className="table table-sm">
-                            <tbody>
-                              {(inv.items ?? []).map((it) => (
-                                <tr key={it.id}>
-                                  <td>{it.fee_name}</td>
-                                  <td className="text-end">
-                                    {formatRupiah(it.amount)}
-                                  </td>
-                                </tr>
-                              ))}
-                              {inv.discount?.amount > 0 && (
-                                <tr>
-                                  <td>
-                                    Diskon
-                                    {inv.discount.type === "percentage" &&
-                                      inv.discount.rate != null && (
-                                        <> ({inv.discount.rate}%)</>
-                                      )}
-                                  </td>
-                                  <td className="text-end text-danger">
-                                    -{formatRupiah(inv.discount.amount)}
-                                  </td>
-                                </tr>
-                              )}
-                              <tr className="fw-bold">
-                                <td>Total</td>
-                                <td className="text-end">
-                                  {formatRupiah(inv.total_amount)}
-                                </td>
-                              </tr>
-                              <tr>
-                                <td>Terbayar</td>
-                                <td className="text-end text-success">
-                                  {formatRupiah(inv.paid_amount)}
-                                </td>
-                              </tr>
-                            </tbody>
-                          </table>
-
-                          {/* Payments */}
-                          <h6 className="fw-bold mt-3">
-                            Pembayaran ({(inv.payments ?? []).length})
-                          </h6>
-                          {(inv.payments ?? []).length === 0 ? (
-                            <p className="text-muted small mb-0">
-                              Belum ada pembayaran.
-                            </p>
-                          ) : (
-                            <table className="table table-sm mb-0">
-                              <thead>
-                                <tr>
-                                  <th>Kuitansi</th>
-                                  <th>Tanggal</th>
-                                  <th>Metode</th>
-                                  <th className="text-end">Nominal</th>
-                                  <th>Status</th>
-                                </tr>
-                              </thead>
-                              <tbody>
-                                {inv.payments.map((p) => (
-                                  <tr key={p.id}>
-                                    <td>{p.receipt_number}</td>
-                                    <td>
-                                      {new Date(
-                                        p.payment_date,
-                                      ).toLocaleDateString("id-ID")}
-                                    </td>
-                                    <td>
-                                      {METHOD_LABELS[p.payment_method] ??
-                                        p.payment_method}
-                                    </td>
+          {/* invoices & payments */}
+          <section className="section mb-3">
+            <div className="card">
+              <div className="card-header">
+                <h5 className="card-title mb-0">
+                  <i className="bi bi-file-earmark-text me-2"></i> Riwayat
+                  Tagihan
+                </h5>
+              </div>
+              <div className="card-body">
+                {(history.invoices ?? []).length === 0 ? (
+                  <p className="text-muted mb-0">Belum ada tagihan.</p>
+                ) : (
+                  <div className="accordion" id="invoicesAccordion">
+                    {history.invoices.map((inv, idx) => {
+                      const s = STATUS_LABELS[inv.status] ?? {
+                        label: inv.status,
+                        class: "bg-secondary",
+                      };
+                      const collapseId = `inv-collapse-${inv.id}`;
+                      return (
+                        <div className="accordion-item" key={inv.id}>
+                          <h2
+                            className="accordion-header"
+                            id={`inv-heading-${inv.id}`}
+                          >
+                            <button
+                              className="accordion-button collapsed"
+                              type="button"
+                              data-bs-toggle="collapse"
+                              data-bs-target={`#${collapseId}`}
+                              aria-expanded="false"
+                              aria-controls={collapseId}
+                            >
+                              <div className="d-flex justify-content-between w-100 me-3 flex-wrap gap-2">
+                                <span className="fw-bold">
+                                  {inv.invoice_number}
+                                </span>
+                                <span className="text-muted small">
+                                  {inv.invoice_date} —{" "}
+                                  {inv.academic_year?.name ?? "-"}
+                                </span>
+                                <span className={`badge ${s.class}`}>
+                                  {s.label}
+                                </span>
+                                <span className="text-danger">
+                                  Sisa: {formatRupiah(inv.outstanding_amount)}
+                                </span>
+                              </div>
+                            </button>
+                          </h2>
+                          <div
+                            id={collapseId}
+                            className="accordion-collapse collapse"
+                            aria-labelledby={`inv-heading-${inv.id}`}
+                            data-bs-parent="#invoicesAccordion"
+                          >
+                            <div className="accordion-body">
+                              {/* Items */}
+                              <h6 className="fw-bold">Item</h6>
+                              <table className="table table-sm">
+                                <tbody>
+                                  {(inv.items ?? []).map((it) => (
+                                    <tr key={it.id}>
+                                      <td>{it.fee_name}</td>
+                                      <td className="text-end">
+                                        {formatRupiah(it.amount)}
+                                      </td>
+                                    </tr>
+                                  ))}
+                                  {inv.discount?.amount > 0 && (
+                                    <tr>
+                                      <td>
+                                        Diskon
+                                        {inv.discount.type === "percentage" &&
+                                          inv.discount.rate != null && (
+                                            <> ({inv.discount.rate}%)</>
+                                          )}
+                                      </td>
+                                      <td className="text-end text-danger">
+                                        -{formatRupiah(inv.discount.amount)}
+                                      </td>
+                                    </tr>
+                                  )}
+                                  <tr className="fw-bold">
+                                    <td>Total</td>
                                     <td className="text-end">
-                                      {formatRupiah(p.amount)}
-                                    </td>
-                                    <td>
-                                      {p.status === "completed" ? (
-                                        <span className="badge bg-success">
-                                          Lunas
-                                        </span>
-                                      ) : (
-                                        <span className="badge bg-danger">
-                                          Void
-                                        </span>
-                                      )}
+                                      {formatRupiah(inv.total_amount)}
                                     </td>
                                   </tr>
-                                ))}
-                              </tbody>
-                            </table>
-                          )}
+                                  <tr>
+                                    <td>Terbayar</td>
+                                    <td className="text-end text-success">
+                                      {formatRupiah(inv.paid_amount)}
+                                    </td>
+                                  </tr>
+                                </tbody>
+                              </table>
+
+                              {/* Payments */}
+                              <h6 className="fw-bold mt-3">
+                                Pembayaran ({(inv.payments ?? []).length})
+                              </h6>
+                              {(inv.payments ?? []).length === 0 ? (
+                                <p className="text-muted small mb-0">
+                                  Belum ada pembayaran.
+                                </p>
+                              ) : (
+                                <table className="table table-sm mb-0">
+                                  <thead>
+                                    <tr>
+                                      <th>Kuitansi</th>
+                                      <th>Tanggal</th>
+                                      <th>Metode</th>
+                                      <th className="text-end">Nominal</th>
+                                      <th>Status</th>
+                                    </tr>
+                                  </thead>
+                                  <tbody>
+                                    {inv.payments.map((p) => (
+                                      <tr key={p.id}>
+                                        <td>{p.receipt_number}</td>
+                                        <td>
+                                          {new Date(
+                                            p.payment_date,
+                                          ).toLocaleDateString("id-ID")}
+                                        </td>
+                                        <td>
+                                          {METHOD_LABELS[p.payment_method] ??
+                                            p.payment_method}
+                                        </td>
+                                        <td className="text-end">
+                                          {formatRupiah(p.amount)}
+                                        </td>
+                                        <td>
+                                          {p.status === "completed" ? (
+                                            <span className="badge bg-success">
+                                              Lunas
+                                            </span>
+                                          ) : (
+                                            <span className="badge bg-danger">
+                                              Void
+                                            </span>
+                                          )}
+                                        </td>
+                                      </tr>
+                                    ))}
+                                  </tbody>
+                                </table>
+                              )}
+                            </div>
+                          </div>
                         </div>
-                      </div>
-                    </div>
-                  );
-                })}
+                      );
+                    })}
+                  </div>
+                )}
               </div>
-            )}
-          </div>
-        </div>
-      </section>
+            </div>
+          </section>
+        </>
+      )}
     </div>
   );
 }

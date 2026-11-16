@@ -127,7 +127,7 @@ export default function InvoiceDetail() {
           <div className="col-12 col-md-8">
             <h3>Invoice {invoice.invoice_number}</h3>
             <p className="text-subtitle text-muted mb-0">
-              {invoice.status?.full_name ?? "-"} —{" "}
+              {invoice.student?.full_name ?? "-"} —{" "}
               {invoice.academic_year?.name ?? "-"}
             </p>
           </div>

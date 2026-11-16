@@ -24,8 +24,8 @@ export default function ReportsPage() {
 
       <section className="section">
         <div className="card">
-          <div className="card-header p-0">
-            <ul className="nav nav-tabs card-header-tabs mx-0">
+          <div className="card-header pb-0">
+            <ul className="nav nav-tabs">
               {TABS.map((tab) => (
                 <li className="nav-item" key={tab.key}>
                   <button
