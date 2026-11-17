@@ -34,7 +34,7 @@ export default function App() {
             element={<ProtectedRoute allowedRoles={["admin", "principal"]} />}
           >
             <Route element={<MainLayout />}>
-              <Route path="/" element={<DashboardPage />} />
+              <Route path="/dashboard" element={<DashboardPage />} />
               <Route path="/invoices" element={<InvoicePage />} />
               <Route path="/invoices/create" element={<InvoiceForm />} />
               <Route path="/invoices/:id" element={<InvoiceDetail />} />

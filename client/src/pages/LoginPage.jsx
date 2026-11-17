@@ -22,7 +22,7 @@ export default function LoginPage() {
 
     try {
       await login(email, password);
-      navigate("/", { replace: true });
+      navigate("/dashboard", { replace: true });
     } catch (error) {
       if (error.response) {
         const { status, data } = error.response;

@@ -39,7 +39,7 @@ export default function Sidebar({ isSidebarActive, toggleSidebar }) {
             <li className="sidebar-title">Menu Utama</li>
 
             <li className="sidebar-item">
-              <NavLink to={"/"} className="sidebar-link">
+              <NavLink to={"/dashboard"} className="sidebar-link">
                 <i className="bi bi-speedometer"></i>
                 <span>Dashboard</span>
               </NavLink>
