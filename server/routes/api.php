@@ -3,6 +3,7 @@
 use App\Http\Controllers\Api\AcademicYearController;
 use App\Http\Controllers\Api\AuthController;
 use App\Http\Controllers\Api\ClassController;
+use App\Http\Controllers\Api\DashboardController;
 use App\Http\Controllers\Api\FeeComponentController;
 use App\Http\Controllers\Api\InvoiceController;
 use App\Http\Controllers\Api\PaymentController;
@@ -17,6 +18,10 @@ Route::post('/login', [AuthController::class, 'login'])->middleware('throttle:5,
 Route::middleware(['auth:sanctum', 'active'])->group(function () {
     Route::post('/logout', [AuthController::class, 'logout']);
     Route::get('/me', [AuthController::class, 'me']);
+
+    // Dashboard
+    Route::get('/dashboard', [DashboardController::class, 'index'])
+        ->middleware('role:admin,principal');
 
     // Academic Years
     Route::apiResource('academic-years', AcademicYearController::class)
