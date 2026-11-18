@@ -37,7 +37,7 @@ export default function MainLayout() {
       <div id="main">
         <header className="mb-3">
           <button
-            className="burger-btn d-block d-xl-none btn btn-link p-0 text-dark"
+            className="burger-btn d-block d-xl-none btn btn-link"
             onClick={toggleSidebar}
           >
             <i className="bi bi-justify fs-3"></i>

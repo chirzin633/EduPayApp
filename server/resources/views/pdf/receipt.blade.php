@@ -78,18 +78,20 @@
 
         .footer {
             margin-top: 40px;
-            display: flex;
-            justify-content: space-between;
+            width: 100%;
+            border-collapse: collapse;
         }
 
         .signature-box {
             text-align: center;
-            width: 200px;
+            width: 50%;
+            vertical-align: top;
         }
 
         .signature-line {
+            width: 200px;
             border-top: 1px solid #333;
-            margin-top: 50px;
+            margin: 50px auto 0 auto;
             padding-top: 4px;
         }
 
@@ -119,7 +121,7 @@
         </tr>
         <tr>
             <td class="label">Tanggal Pembayaran</td>
-            <td>: {{ $payment->payment_date->format('d/m/Y') }}</td>
+            <td>: {{ $payment->payment_date->locale('id')->translatedFormat('d F Y') }}</td>
         </tr>
         <tr>
             <td class="label">Metode Pembayaran</td>
@@ -193,16 +195,27 @@
     </table>
 
     {{-- Tanda Tangan --}}
-    <div class="footer">
-        <div class="signature-box">
-            <div>Orang Tua / Wali</div>
-            <div class="signature-line">( __________________ )</div>
-        </div>
-        <div class="signature-box">
-            <div>Petugas Keuangan</div>
-            <div class="signature-line">{{ $payment->recorder->name }}</div>
-        </div>
-    </div>
+    <table class="footer">
+        <tr>
+            <td class="signature-box"></td>
+            <td class="signature-box">Cirebon, {{ now()->locale('id')->translatedFormat('d F Y') }}</td>
+        </tr>
+
+        <tr>
+            <td class="signature-box">Orang Tua / Wali</td>
+            <td class="signature-box">Petugas Keuangan</td>
+        </tr>
+
+        <tr>
+            <td class="signature-box">
+                <div class="signature-line">( __________________ )</div>
+            </td>
+
+            <td class="signature-box">
+                <div class="signature-line">{{ $payment->recorder->name }}</div>
+            </td>
+        </tr>
+    </table>
 
     <div class="note">
         Dokumen ini dicetak secara otomatis oleh sistem. Simpan kuitansi ini sebagai bukti pembayaran yang sah.

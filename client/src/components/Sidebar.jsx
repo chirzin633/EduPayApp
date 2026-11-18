@@ -85,7 +85,7 @@ export default function Sidebar({ isSidebarActive, toggleSidebar }) {
 
             <div className="sidebar-toggler x">
               <button
-                className="sidebar-hide d-xl-none d-block btn btn-link p-0 text-muted"
+                className="sidebar-hide d-xl-none d-block btn btn-link"
                 onClick={toggleSidebar}
               >
                 <i className="bi bi-x bi-middle fs-3"></i>
