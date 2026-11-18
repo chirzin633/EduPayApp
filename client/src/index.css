@@ -1,0 +1,29 @@
+.stats-icon.yellow,
+body.theme-dark .stats-icon.yellow,
+html[data-bs-theme="dark"] .stats-icon.yellow {
+  background-color: #ffca5b;
+}
+
+.stats-icon.orange,
+body.theme-dark .stats-icon.orange,
+html[data-bs-theme="dark"] .stats-icon.orange {
+  background-color: #ffa26b;
+}
+
+.stats-icon.gray,
+body.theme-dark .stats-icon.gray,
+html[data-bs-theme="dark"] .stats-icon.gray {
+  background-color: #9aa5b1;
+}
+
+.stats-icon.teal,
+body.theme-dark .stats-icon.teal,
+html[data-bs-theme="dark"] .stats-icon.teal {
+  background-color: #4fd1c5;
+}
+
+.stats-icon.pink,
+body.theme-dark .stats-icon.pink,
+html[data-bs-theme="dark"] .stats-icon.pink {
+  background-color: #f687b3;
+}

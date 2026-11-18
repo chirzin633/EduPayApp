@@ -109,7 +109,7 @@ export default function StudentsPage() {
           <div className="card-body">
             {/* Filter */}
             <form onSubmit={applyFilter} className="row g-2 mb-3">
-              <div className="col-md-2 col-12">
+              <div className="col-md-3 col-12">
                 <select
                   name="is_active"
                   id="is_active"

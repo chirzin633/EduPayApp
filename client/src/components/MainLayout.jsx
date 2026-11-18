@@ -1,11 +1,29 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Sidebar from "./Sidebar";
 import { useAuth } from "../context/AuthContext";
-import { Outlet } from "react-router";
+import { Outlet, useLocation } from "react-router";
 
-export default function MainLayout({ children }) {
+const TITLES = {
+  "/dashboard": "Dashboard",
+  "/academic-years": "Tahun Ajaran",
+  "/classes": "Data Kelas",
+  "/students": "Data Siswa",
+  "/student-class-assignments": "Penempatan Kelas",
+  "/fee-components": "Komponen Biaya",
+  "/invoices": "Invoice",
+  "/payments": "Pembayaran",
+  "/reports": "Laporan",
+};
+
+export default function MainLayout() {
   const { user, logout } = useAuth();
   const [isSidebarActive, setIsSidebarActive] = useState(true);
+  const { pathname } = useLocation();
+  const label = TITLES[pathname];
+
+  useEffect(() => {
+    document.title = label ? `${label} - EduPay` : "EduPay";
+  }, [label]);
 
   function toggleSidebar() {
     setIsSidebarActive(!isSidebarActive);
