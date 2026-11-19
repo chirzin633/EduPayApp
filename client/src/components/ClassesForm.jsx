@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { Link, useNavigate, useParams } from "react-router";
 import api from "../utils/api";
 import axios from "axios";
+import { showToast } from "../utils/toast";
 
 const EMPTY_FORM = {
   code: "",
@@ -48,9 +49,10 @@ export default function ClassForm() {
         }
 
         if (error.response?.status === 404) {
-          setErrorMessage("Kelas tidak ditemukan.");
+          showToast.warning("Kelas tidak ditemukan.");
+          navigate("/classes");
         } else {
-          setErrorMessage("Gagal memuat detail kelas.");
+          showToast.error("Gagal memuat detail kelas.");
         }
       } finally {
         setLoadingDetail(false);
@@ -60,7 +62,7 @@ export default function ClassForm() {
     fetchClasses();
 
     return () => controller.abort();
-  }, [id, isEditing]);
+  }, [id, isEditing, navigate]);
 
   function handleInputChange(e) {
     const { name, value, type, checked } = e.target;
@@ -91,13 +93,15 @@ export default function ClassForm() {
     } catch (error) {
       if (error.response?.status === 422) {
         const data = error.response.data;
-        setErrorMessage(data.message || "Validasi gagal.");
+        showToast.warning(data.message || "Periksa kembali isian form.");
 
         if (data.errors) {
           setFieldErrors(data.errors);
         }
       } else {
-        error.response?.data?.message || "Terjadi kesalahan pada server.";
+        showToast.error(
+          error.response?.data?.message || "Terjadi kesalahan pada server.",
+        );
       }
     } finally {
       setIsSubmitting(false);

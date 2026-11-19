@@ -1,7 +1,8 @@
 import { useEffect, useState } from "react";
+import { formatRupiah } from "../utils/format";
 
 export default function PaymentVoidModal(props) {
-  const { payment, isSubmitting, errorMessage, onClose, onSubmit } = props;
+  const { payment, isSubmitting, onClose, onSubmit } = props;
 
   const [reason, setReason] = useState("");
   const [validationError, setValidationError] = useState("");
@@ -59,27 +60,13 @@ export default function PaymentVoidModal(props) {
               <div className="modal-body">
                 <p className="mb-2">
                   Kuitansi <strong>{payment.receipt_number}</strong> sebesar{" "}
-                  <strong>
-                    {new Intl.NumberFormat("id-ID", {
-                      style: "currency",
-                      currency: "IDR",
-                      minimumFractionDigits: 0,
-                    }).format(payment.amount)}
-                  </strong>{" "}
-                  akan di-void
+                  <strong>{formatRupiah(payment.amount)}</strong> akan di-void
                 </p>
 
                 <p className="text-muted small">
                   Tindakan ini tidak menghapus data. Pembayaran akan dihitung
                   ulang pada status invoice. Tidak dapat diurungkan.
                 </p>
-
-                {(errorMessage || validationError) && (
-                  <div className="alert alert-danger py-2 mb-2">
-                    <i className="bi bi-exclamation-triangle-fill me-1"></i>
-                    {validationError || errorMessage}
-                  </div>
-                )}
 
                 <div className="form-group mb-0">
                   <label htmlFor="void_reason" className="form-label">
@@ -92,11 +79,17 @@ export default function PaymentVoidModal(props) {
                     maxLength={500}
                     minLength={5}
                     value={reason}
-                    onChange={(e) => setReason(e.target.value)}
+                    onChange={(e) => {
+                      setReason(e.target.value);
+                      if (validationError) setValidationError("");
+                    }}
                     placeholder="Contoh: Salah input nominal pembayaran."
                     required
                     disabled={isSubmitting}
                   />
+                  {validationError && (
+                    <div className="invalid-feedback">{validationError}</div>
+                  )}
                   <small className="text-muted">
                     {reason.length}/500 karakter (min. 5)
                   </small>

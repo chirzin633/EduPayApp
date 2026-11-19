@@ -4,6 +4,8 @@ import { useAuth } from "../context/AuthContext";
 import api from "../utils/api";
 import { downloadReceipt } from "../utils/downloadReceipt";
 import PaymentVoidModal from "../components/PaymentVoidModal";
+import { showToast } from "../utils/toast";
+import { formatRupiah } from "../utils/format";
 
 const STATUS_LABELS = {
   completed: { label: "Lunas", class: "bg-success" },
@@ -25,8 +27,6 @@ export default function PaymentPage() {
 
   const [payments, setPayments] = useState([]);
   const [loading, setLoading] = useState(false);
-  const [errorMessage, setErrorMessage] = useState("");
-  const [successMessage, setSuccessMessage] = useState("");
   const [pagination, setPagination] = useState({
     current_page: 1,
     last_page: 1,
@@ -41,14 +41,12 @@ export default function PaymentPage() {
   // modal void
   const [voidTarget, setVoidTarget] = useState(null);
   const [isVoiding, setIsVoiding] = useState(false);
-  const [voidError, setVoidError] = useState("");
 
   // download state per payment id
   const [downloadingId, setDownloadingId] = useState(null);
 
   async function fetchPayments(page = 1, appliedFilter = filter) {
     setLoading(true);
-    setErrorMessage("");
     try {
       const params = new URLSearchParams();
       params.append("page", page);
@@ -66,7 +64,7 @@ export default function PaymentPage() {
         last_page: res.data.meta.last_page,
       });
     } catch {
-      setErrorMessage("Gagal memuat data pembayaran.");
+      showToast.error("Gagal memuat data pembayaran.");
     } finally {
       setLoading(false);
     }
@@ -75,7 +73,7 @@ export default function PaymentPage() {
   useEffect(() => {
     fetchPayments();
     if (location.state?.flash) {
-      setSuccessMessage(location.state.flash);
+      showToast.success(location.state.flash);
       navigate(location.pathname, { replace: true, state: {} });
     }
   }, []);
@@ -105,21 +103,20 @@ export default function PaymentPage() {
   async function handleVoidSubmit(reason) {
     if (!voidTarget) return;
     setIsVoiding(true);
-    setVoidError("");
     try {
       await api.post(`/payments/${voidTarget.id}/void`, {
         void_reason: reason,
       });
       setVoidTarget(null);
-      setSuccessMessage("Pembayaran berhasil dibatalkan (void).");
+      showToast.success("Pembayaran berhasil dibatalkan (void).");
       await fetchPayments(pagination.current_page, filter);
     } catch (error) {
       if (error.response?.status === 422) {
-        setVoidError(
+        showToast.warning(
           error.response.data.message || "Pembayaran tidak dapat di-void.",
         );
       } else {
-        setVoidError(
+        showToast.error(
           error.response?.data?.message || "Terjadi kesalahan pada server.",
         );
       }
@@ -146,19 +143,10 @@ export default function PaymentPage() {
       } else if (error.response?.data?.message) {
         message = error.response.data.message;
       }
-      setErrorMessage(error);
+      showToast.error(message);
     } finally {
       setDownloadingId(null);
     }
-  }
-
-  function formatRupiah(value) {
-    if (value === null || value === undefined) return "-";
-    return new Intl.NumberFormat("id-ID", {
-      style: "currency",
-      currency: "IDR",
-      minimumFractionDigits: 0,
-    }).format(value);
   }
 
   return (
@@ -180,20 +168,6 @@ export default function PaymentPage() {
           )}
         </div>
       </div>
-
-      {successMessage && (
-        <div className="alert alert-success alert-dismissible fade show">
-          <i className="bi bi-check-circle-fill me-2"></i>
-          {successMessage}
-        </div>
-      )}
-
-      {errorMessage && (
-        <div className="alert alert-danger">
-          <i className="bi bi-exclamation-triangle-fill me-2"></i>
-          {errorMessage}
-        </div>
-      )}
 
       <section className="section">
         <div className="card">
@@ -332,7 +306,6 @@ export default function PaymentPage() {
                                       className="btn btn-sm btn-outline-danger"
                                       onClick={() => {
                                         setVoidTarget(p);
-                                        setVoidError("");
                                       }}
                                       title="Void pembayaran"
                                     >
@@ -390,10 +363,8 @@ export default function PaymentPage() {
       <PaymentVoidModal
         payment={voidTarget}
         isSubmitting={isVoiding}
-        errorMessage={voidError}
         onClose={() => {
           setVoidTarget(null);
-          setVoidError("");
         }}
         onSubmit={handleVoidSubmit}
       />

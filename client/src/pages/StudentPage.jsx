@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
-import { data, Link, useLocation, useNavigate } from "react-router";
+import { Link, useLocation, useNavigate } from "react-router";
 import api from "../utils/api";
+import { showToast } from "../utils/toast";
 
 export default function StudentsPage() {
   const navigate = useNavigate();
@@ -8,8 +9,6 @@ export default function StudentsPage() {
 
   const [students, setStudents] = useState([]);
   const [loading, setLoading] = useState(false);
-  const [errorMessage, setErrorMessage] = useState("");
-  const [successMessage, setSuccessMessage] = useState("");
   const [pagination, setPagination] = useState({
     current_page: 1,
     last_page: 1,
@@ -21,7 +20,6 @@ export default function StudentsPage() {
 
   async function fetchStudents(page = 1, appliedFilter = filter) {
     setLoading(true);
-    setErrorMessage("");
     try {
       const params = new URLSearchParams();
       params.append("page", page);
@@ -39,7 +37,7 @@ export default function StudentsPage() {
         last_page: res.data.meta.last_page,
       });
     } catch (error) {
-      setErrorMessage("Gagal memuat data siswa");
+      showToast.error("Gagal memuat data siswa");
     } finally {
       setLoading(false);
     }
@@ -48,7 +46,7 @@ export default function StudentsPage() {
   useEffect(() => {
     fetchStudents();
     if (location.state?.flash) {
-      setSuccessMessage(location.state.flash);
+      showToast.success(location.state.flash);
       navigate(location.pathname, { replace: true, state: {} });
     }
   }, []);
@@ -87,20 +85,6 @@ export default function StudentsPage() {
         </div>
       </div>
 
-      {successMessage && (
-        <div className="alert alert-success alert-dismissible fade show">
-          <i className="bi bi-check-circle-fill me-2"></i>
-          {successMessage}
-        </div>
-      )}
-
-      {errorMessage && (
-        <div className="alert alert-danger">
-          <i className="bi bi-exclamation-triangle-fill me-2"></i>
-          {errorMessage}
-        </div>
-      )}
-
       <section className="section">
         <div className="card">
           <div className="card-header">
@@ -123,7 +107,7 @@ export default function StudentsPage() {
                 </select>
               </div>
 
-              <div className="col-md-6 col-12">
+              <div className="col-md-5 col-12">
                 <input
                   type="text"
                   name="search"

@@ -2,6 +2,8 @@ import { Link, useLocation, useNavigate, useParams } from "react-router";
 import { useAuth } from "../context/AuthContext";
 import { useEffect, useState } from "react";
 import api from "../utils/api";
+import { showToast, confirmAction } from "../utils/toast";
+import { formatRupiah } from "../utils/format";
 
 const STATUS_LABELS = {
   unpaid: { label: "Belum Dibayar", class: "bg-secondary" },
@@ -19,21 +21,18 @@ export default function InvoiceDetail() {
 
   const [invoice, setInvoice] = useState(null);
   const [loading, setLoading] = useState(true);
-  const [errorMessage, setErrorMessage] = useState("");
-  const [successMessage, setSuccessMessage] = useState("");
   const [isCancelling, setIsCancelling] = useState(false);
 
   async function fetchInvoice() {
     setLoading(true);
-    setErrorMessage("");
     try {
       const res = await api.get(`/invoices/${id}`);
       setInvoice(res.data.data);
     } catch (error) {
       if (error.response?.status === 404) {
-        setErrorMessage("Invoice tidak ditemukan.");
+        showToast.warning("Invoice tidak ditemukan.");
       } else {
-        setErrorMessage("Gagal memuat detail invoice.");
+        showToast.error("Gagal memuat detail invoice.");
       }
     } finally {
       setLoading(false);
@@ -43,47 +42,42 @@ export default function InvoiceDetail() {
   useEffect(() => {
     fetchInvoice();
     if (location.state?.flash) {
-      setSuccessMessage(location.state.flash);
+      showToast.success(location.state.flash);
       navigate(location.pathname, { replace: true, state: {} });
     }
   }, [id]);
 
   async function handleCancel() {
-    if (
-      !window.confirm(
-        "Yakin ingin membatalkan invoice ini? Tindakan ini tidak dapat diurungkan.",
-      )
-    ) {
+    const isConfirmed = await confirmAction({
+      title: "Batalkan Invoice?",
+      text: "Yakin ingin membatalkan invoice ini? Tindakan ini tidak dapat diurungkan.",
+      icon: "question",
+      confirmButtonText: "Ya, Batalkan",
+      cancelButtonText: "Kembali",
+    });
+
+    if (!isConfirmed) {
       return;
     }
+
     setIsCancelling(true);
-    setErrorMessage("");
     try {
       await api.post(`/invoices/${id}/cancel`);
-      setSuccessMessage("Invoice berhasil dibatalkan");
+      showToast.success("Invoice berhasil dibatalkan");
       await fetchInvoice();
     } catch (error) {
       if (error.response?.status === 422) {
-        setErrorMessage(
+        showToast.warning(
           error.response.data.message || "Invoice tidak dapat dibatalkan.",
         );
       } else {
-        setErrorMessage(
+        showToast.error(
           error.response?.data?.message || "Terjadi kesalahan pada server.",
         );
       }
     } finally {
       setIsCancelling(false);
     }
-  }
-
-  function formatRupiah(value) {
-    if (value === null || value === undefined) return "-";
-    return new Intl.NumberFormat("id-ID", {
-      style: "currency",
-      currency: "IDR",
-      minimumFractionDigits: 0,
-    }).format(value);
   }
 
   if (loading) {
@@ -95,17 +89,7 @@ export default function InvoiceDetail() {
   }
 
   if (!invoice) {
-    return (
-      <div className="page-heading">
-        <div className="alert alert-danger">
-          <i className="bi bi-exclamation-triangle-fill me-2"></i>
-          {errorMessage || "Invoice tidak ditemukan."}
-        </div>
-        <Link to="/invoices" className="btn btn-light-secondary">
-          <i className="bi bi-arrow-left me-1"></i> Kembali
-        </Link>
-      </div>
-    );
+    return null;
   }
 
   const s = STATUS_LABELS[invoice.status] ?? {
@@ -157,20 +141,6 @@ export default function InvoiceDetail() {
           </div>
         </div>
       </div>
-
-      {successMessage && (
-        <div className="alert alert-success">
-          <i className="bi bi-check-circle-fill me-2"></i>
-          {successMessage}
-        </div>
-      )}
-
-      {errorMessage && (
-        <div className="alert alert-danger">
-          <i className="bi bi-exclamation-triangle-fill me-2"></i>
-          {errorMessage}
-        </div>
-      )}
 
       {/* Info Invoice */}
       <section className="section mb-3">

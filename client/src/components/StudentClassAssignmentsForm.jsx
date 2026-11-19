@@ -2,6 +2,7 @@ import { useEffect, useMemo, useState } from "react";
 import { Link, useNavigate } from "react-router";
 import api from "../utils/api";
 import axios from "axios";
+import { showToast } from "../utils/toast";
 
 const EMPTY_FORM = {
   student_id: "",
@@ -14,7 +15,6 @@ export default function StudentClassAssignmentsForm() {
 
   const [formData, setFormData] = useState(EMPTY_FORM);
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [errorMessage, setErrorMessage] = useState("");
   const [fieldErrors, setFieldErrors] = useState({});
 
   // master data
@@ -65,7 +65,7 @@ export default function StudentClassAssignmentsForm() {
           return;
         }
 
-        setErrorMessage("Gagal memuat master data. Coba muat ulang halaman.");
+        showToast.warning("Gagal memuat master data. Coba muat ulang halaman.");
       } finally {
         setLoadingMaster(false);
       }
@@ -120,7 +120,6 @@ export default function StudentClassAssignmentsForm() {
 
   async function handleSubmit(e) {
     e.preventDefault();
-    setErrorMessage("");
     setFieldErrors({});
     setIsSubmitting(true);
 
@@ -129,7 +128,7 @@ export default function StudentClassAssignmentsForm() {
       const studentObj = students.find(
         (student) => student.id === Number(formData.student_id),
       );
-      setErrorMessage(
+      showToast.warning(
         `Siswa ${studentObj?.full_name ?? ""} sudah memiliki penempatan kelas di tahun ajaran ini.`,
       );
       setIsSubmitting(false);
@@ -149,10 +148,10 @@ export default function StudentClassAssignmentsForm() {
     } catch (error) {
       if (error.response?.status === 422) {
         const data = error.response.data;
-        setErrorMessage(data.message || "Validasi gagal.");
+        showToast.warning(data.message || "Periksa kembali isian form.");
         if (data.errors) setFieldErrors(data.errors);
       } else {
-        setErrorMessage(
+        showToast.error(
           error.response?.data?.message || "Terjadi kesalahan pada server.",
         );
       }
@@ -195,13 +194,6 @@ export default function StudentClassAssignmentsForm() {
           </div>
         </div>
       </div>
-
-      {errorMessage && (
-        <div className="alert alert-danger">
-          <i className="bi bi-exclamation-triangle-fill me-2"></i>
-          {errorMessage}
-        </div>
-      )}
 
       {/* peringatan jika master data kosong */}
       {(!academicYears.length || !classes.length || !students.length) && (

@@ -1,6 +1,8 @@
 import { useEffect, useState } from "react";
 import { Link, useLocation, useNavigate } from "react-router";
 import api from "../utils/api";
+import { showToast } from "../utils/toast";
+import { formatRupiah } from "../utils/format";
 
 export default function FeeComponentPage() {
   const navigate = useNavigate();
@@ -8,8 +10,6 @@ export default function FeeComponentPage() {
 
   const [feeComponents, setFeeComponents] = useState([]);
   const [loading, setLoading] = useState(false);
-  const [errorMessage, setErrorMessage] = useState("");
-  const [successMessage, setSuccessMessage] = useState("");
   const [pagination, setPagination] = useState({
     current_page: 1,
     last_page: 1,
@@ -21,7 +21,6 @@ export default function FeeComponentPage() {
 
   async function fetchFeeComponents(page = 1, appliedFilter = filter) {
     setLoading(true);
-    setErrorMessage("");
     try {
       const params = new URLSearchParams();
       params.append("page", page);
@@ -36,7 +35,7 @@ export default function FeeComponentPage() {
         last_page: res.data.meta.last_page,
       });
     } catch {
-      setErrorMessage("Gagal memuat data komponen biaya");
+      showToast.error("Gagal memuat data komponen biaya");
     } finally {
       setLoading(false);
     }
@@ -45,7 +44,7 @@ export default function FeeComponentPage() {
   useEffect(() => {
     fetchFeeComponents();
     if (location.state?.flash) {
-      setSuccessMessage(location.state.flash);
+      showToast.success(location.state.flash);
       navigate(location.pathname, { replace: true, state: {} });
     }
   }, []);
@@ -73,18 +72,6 @@ export default function FeeComponentPage() {
       )
     : feeComponents;
 
-  function formatRupiah(value) {
-    if (value === null || value === undefined) {
-      return "-";
-    }
-
-    return new Intl.NumberFormat("id-ID", {
-      style: "currency",
-      currency: "IDR",
-      minimumFractionDigits: 0,
-    }).format(value);
-  }
-
   return (
     <div className="page-heading">
       <div className="page-title mb-3">
@@ -102,20 +89,6 @@ export default function FeeComponentPage() {
           </div>
         </div>
       </div>
-
-      {successMessage && (
-        <div className="alert alert-success alert-dismissible fade show">
-          <i className="bi bi-check-circle-fill me-2"></i>
-          {successMessage}
-        </div>
-      )}
-
-      {errorMessage && (
-        <div className="alert alert-danger">
-          <i className="bi bi-exclamation-triangle-fill me-2"></i>
-          {errorMessage}
-        </div>
-      )}
 
       {/* Catatan gap fitur */}
       <div className="alert alert-info">

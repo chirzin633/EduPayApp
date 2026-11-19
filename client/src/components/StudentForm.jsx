@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { Link, useNavigate, useParams } from "react-router";
 import api from "../utils/api";
 import axios from "axios";
+import { showToast } from "../utils/toast";
 
 const EMPTY_FORM = {
   nis: "",
@@ -23,7 +24,6 @@ export default function StudentForm() {
   const [formData, setFormData] = useState(EMPTY_FORM);
   const [loadingDetail, setLoadingDetail] = useState(isEditing);
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [errorMessage, setErrorMessage] = useState("");
   const [fieldErrors, setFieldErrors] = useState({});
 
   useEffect(() => {
@@ -59,9 +59,10 @@ export default function StudentForm() {
         }
 
         if (error.response?.status === 404) {
-          setErrorMessage("Siswa tidak ditemukan");
+          showToast.warning("Siswa tidak ditemukan");
+          navigate("/students");
         } else {
-          setErrorMessage("Gagal memuat detail siswa.");
+          showToast.error("Gagal memuat detail siswa.");
         }
       } finally {
         setLoadingDetail(false);
@@ -70,7 +71,7 @@ export default function StudentForm() {
 
     fetchStudent();
     return () => controller.abort();
-  }, [id, isEditing]);
+  }, [id, isEditing, navigate]);
 
   function handleInputChange(e) {
     const { name, value, type, checked } = e.target;
@@ -82,7 +83,6 @@ export default function StudentForm() {
 
   async function handleSubmit(e) {
     e.preventDefault();
-    setErrorMessage("");
     setFieldErrors({});
     setIsSubmitting(true);
 
@@ -111,12 +111,12 @@ export default function StudentForm() {
     } catch (error) {
       if (error.response?.status === 422) {
         const data = error.response.data;
-        setErrorMessage(data.message || "Validasi gagal");
+        showToast.warning(data.message || "Periksa kembali isian form.");
         if (data.errors) {
           setFieldErrors(data.errors);
         }
       } else {
-        setErrorMessage(
+        showToast.error(
           error.response?.data?.message || "Terjadi kesalahan pada server.",
         );
       }
@@ -147,18 +147,11 @@ export default function StudentForm() {
           </div>
           <div className="col-12 col-md-6 text-md-end mt-2 mt-md-0">
             <Link to={"/students"} className="btn btn-light-secondary">
-              <i className="i bi-arrow-left me-1"></i> Kembali
+              <i className="bi bi-arrow-left me-1"></i> Kembali
             </Link>
           </div>
         </div>
       </div>
-
-      {errorMessage && (
-        <div className="alert alert-danger">
-          <i className="bi bi-exclamation-triangle-fill me-2"></i>
-          {errorMessage}
-        </div>
-      )}
 
       <form onSubmit={handleSubmit}>
         {/* ==== Section: Identitas Siswa ==== */}

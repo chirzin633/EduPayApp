@@ -1,6 +1,8 @@
 import { useState } from "react";
 import { Link, useNavigate } from "react-router";
 import api from "../utils/api";
+import { showToast } from "../utils/toast";
+import { formatRupiah } from "../utils/format";
 
 const EMPTY_FORM = {
   name: "",
@@ -13,7 +15,6 @@ export default function FeeComponentForm() {
 
   const [formData, setFormData] = useState(EMPTY_FORM);
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [errorMessage, setErrorMessage] = useState("");
   const [fieldErrors, setFieldErrors] = useState({});
 
   function handleInputChange(e) {
@@ -26,7 +27,6 @@ export default function FeeComponentForm() {
 
   async function handleSubmit(e) {
     e.preventDefault();
-    setErrorMessage("");
     setFieldErrors({});
     setIsSubmitting(true);
 
@@ -45,12 +45,12 @@ export default function FeeComponentForm() {
     } catch (error) {
       if (error.response?.status === 422) {
         const data = error.response.data;
-        setErrorMessage(data.message || "Validasi gagal.");
+        showToast.warning(data.message || "Periksa isian form.");
         if (data.errors) {
           setFieldErrors(data.errors);
         }
       } else {
-        setErrorMessage(
+        showToast.error(
           error.response?.data?.message || "Terjadi kesalahan pada server,",
         );
       }
@@ -64,11 +64,7 @@ export default function FeeComponentForm() {
       return "Rp -";
     }
 
-    return new Intl.NumberFormat("id-ID", {
-      style: "currency",
-      currency: "IDR",
-      minimumFractionDigits: 0,
-    }).format(Number(value));
+    return formatRupiah(Number(value));
   }
 
   return (
@@ -92,13 +88,6 @@ export default function FeeComponentForm() {
       <section className="section">
         <div className="card">
           <div className="card-body">
-            {errorMessage && (
-              <div className="alert alert-danger">
-                <i className="bi bi-exclamation-triangle-fill me-2"></i>
-                {errorMessage}
-              </div>
-            )}
-
             <form onSubmit={handleSubmit} className="form">
               <div className="row">
                 {/* Nama Komponen */}

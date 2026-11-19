@@ -1,7 +1,8 @@
-import { data, Link, useNavigate, useParams } from "react-router";
+import { Link, useNavigate, useParams } from "react-router";
 import { useEffect, useState } from "react";
 import api from "../utils/api";
 import axios from "axios";
+import { showToast } from "../utils/toast";
 
 const EMPTY_FORM = {
   name: "",
@@ -18,7 +19,6 @@ export default function AcademicYearsForm() {
   const [formData, setFormData] = useState(EMPTY_FORM);
   const [loadingDetail, setLoadingDetail] = useState(isEditing);
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [errorMessage, setErrorMessage] = useState("");
   const [fieldErrors, setFieldErrors] = useState({});
 
   // load detail saat edit
@@ -49,9 +49,10 @@ export default function AcademicYearsForm() {
         }
 
         if (error.response?.status === 404) {
-          setErrorMessage("Tahun ajaran tidak ditemukan.");
+          showToast.warning("Tahun ajaran tidak ditemukan.");
+          navigate("/academic-years");
         } else {
-          setErrorMessage("Gagal memuat detail tahun ajaran");
+          showToast.error("Gagal memuat detail tahun ajaran");
         }
       } finally {
         setLoadingDetail(false);
@@ -61,7 +62,7 @@ export default function AcademicYearsForm() {
     fetchAcademicYear();
 
     return () => controller.abort();
-  }, [id, isEditing]);
+  }, [id, isEditing, navigate]);
 
   function handleInputChange(e) {
     const { name, value, type, checked } = e.target;
@@ -73,7 +74,6 @@ export default function AcademicYearsForm() {
 
   async function handleSubmit(e) {
     e.preventDefault();
-    setErrorMessage("");
     setFieldErrors({});
     setIsSubmitting(true);
 
@@ -92,13 +92,15 @@ export default function AcademicYearsForm() {
     } catch (error) {
       if (error.response?.status === 422) {
         const data = error.response.data;
-        setErrorMessage(data.message || "Validasi gagal.");
+        showToast.warning(data.message || "Periksa kembali isian form.");
 
         if (data.errors) {
           setFieldErrors(data.errors);
         }
       } else {
-        error.response?.data?.message || "Terjadi kesalahan pada server.";
+        showToast.error(
+          error.response?.data?.message || "Terjadi kesalahan pada server.",
+        );
       }
     } finally {
       setIsSubmitting(false);
@@ -137,13 +139,6 @@ export default function AcademicYearsForm() {
       <section className="section">
         <div className="card">
           <div className="card-body">
-            {errorMessage && (
-              <div className="alert alert-danger">
-                <i className="bi bi-exclamation-triangle-fill me-2"></i>
-                {errorMessage}
-              </div>
-            )}
-
             <form onSubmit={handleSubmit} className="form">
               <div className="row">
                 <div className="col-md-6 col-12">

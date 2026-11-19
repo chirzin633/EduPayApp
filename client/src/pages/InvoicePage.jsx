@@ -2,6 +2,8 @@ import { Link, useLocation, useNavigate } from "react-router";
 import { useEffect, useState } from "react";
 import { useAuth } from "../context/AuthContext";
 import api from "../utils/api";
+import { showToast } from "../utils/toast";
+import { formatRupiah } from "../utils/format";
 
 const STATUS_LABEL = {
   unpaid: { label: "Belum Dibayar", class: "bg-secondary" },
@@ -18,8 +20,6 @@ export default function InvoicePage() {
 
   const [invoices, setInvoices] = useState([]);
   const [loading, setLoading] = useState(false);
-  const [errorMessage, setErrorMessage] = useState("");
-  const [successMessage, setSuccessMessage] = useState("");
   const [pagination, setPagination] = useState({
     current_page: 1,
     last_page: 1,
@@ -46,7 +46,7 @@ export default function InvoicePage() {
       setStudents(stuRes.data.data);
       setAcadmicYears(ayRes.data.data);
     } catch {
-      console.warn("Gagal memuat master data filter.");
+      showToast.warning("Gagal memuat master data filter.");
     } finally {
       setLoadingMaster(false);
     }
@@ -54,7 +54,6 @@ export default function InvoicePage() {
 
   async function fetchInvoices(page = 1, appliedFilter = filter) {
     setLoading(true);
-    setErrorMessage("");
     try {
       const params = new URLSearchParams();
       params.append("page", page);
@@ -76,7 +75,7 @@ export default function InvoicePage() {
         last_page: res.data.meta.last_page,
       });
     } catch {
-      setErrorMessage("Gagal memuat data invoice.");
+      showToast.error("Gagal memuat data invoice.");
     } finally {
       setLoading(false);
     }
@@ -86,7 +85,7 @@ export default function InvoicePage() {
     fetchMasterData();
     fetchInvoices();
     if (location.state?.flash) {
-      setSuccessMessage(location.state.flash);
+      showToast.success(location.state.flash);
       navigate(location.pathname, { replace: true, state: {} });
     }
   }, []);
@@ -105,18 +104,6 @@ export default function InvoicePage() {
     const empty = { status: "", student_id: "", academic_year_id: "" };
     setFilter(empty);
     fetchInvoices(1, empty);
-  }
-
-  function formatRupiah(value) {
-    if (value === null || value === undefined) {
-      return "-";
-    }
-
-    return new Intl.NumberFormat("id-ID", {
-      style: "currency",
-      currency: "IDR",
-      minimumFractionDigits: 0,
-    }).format(value);
   }
 
   return (
@@ -138,20 +125,6 @@ export default function InvoicePage() {
           )}
         </div>
       </div>
-
-      {successMessage && (
-        <div className="alert alert-success alert-dismissible fade show">
-          <i className="bi bi-check-circle-fill me-2"></i>
-          {successMessage}
-        </div>
-      )}
-
-      {errorMessage && (
-        <div className="alert alert-danger">
-          <i className="bi bi-exclamation-triangle-fill me-2"></i>
-          {errorMessage}
-        </div>
-      )}
 
       <section className="section">
         <div className="card">

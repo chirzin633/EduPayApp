@@ -1,22 +1,22 @@
 import { useEffect, useState } from "react";
 import api from "../utils/api";
-import { Link, useNavigate } from "react-router";
+import { Link, useLocation, useNavigate } from "react-router";
+import { showToast } from "../utils/toast";
 
 export default function AcademicYearsPage() {
   const navigate = useNavigate();
+  const location = useLocation();
+
   const [academicYears, setAcademicYears] = useState([]);
   const [loading, setLoading] = useState(false);
   const [pagination, setPagination] = useState({
     current_page: 1,
     last_page: 1,
   });
-  const [errorMessage, setErrorMessage] = useState("");
-  const [successMessage, setSuccessMessage] = useState("");
 
   // load data tahun ajaran
   async function fetchAcademicYears(page = 1) {
     setLoading(true);
-    setErrorMessage("");
 
     try {
       const res = await api.get(`/academic-years?page=${page}`);
@@ -26,7 +26,7 @@ export default function AcademicYearsPage() {
         last_page: res.data.meta.last_page,
       });
     } catch (error) {
-      setErrorMessage("Gagal memuat data tahun ajaran.");
+      showToast.error("Gagal memuat data tahun ajaran.");
     } finally {
       setLoading(false);
     }
@@ -35,11 +35,9 @@ export default function AcademicYearsPage() {
   useEffect(() => {
     fetchAcademicYears();
     // tampilkan pesan sukses bila diarahkan dari form
-    const flash = sessionStorage.getItem("academic_years_flash");
-
-    if (flash) {
-      setSuccessMessage(flash);
-      sessionStorage.removeItem("academic_years_flash");
+    if (location.state?.flash) {
+      showToast.success(location.state.flash);
+      navigate(location.pathname, { replace: true, state: {} });
     }
   }, []);
 
@@ -60,19 +58,6 @@ export default function AcademicYearsPage() {
           </div>
         </div>
       </div>
-
-      {successMessage && (
-        <div className="alert alert-success alert-dismissible fade show">
-          <i className="bi bi-check-circle-fill me-2"></i>
-          {successMessage}
-        </div>
-      )}
-      {errorMessage && (
-        <div className="alert alert-danger">
-          <i className="bi bi-exclamation-triangle-fill me-2"></i>
-          {errorMessage}
-        </div>
-      )}
 
       <section className="section">
         <div className="card">

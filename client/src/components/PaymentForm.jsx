@@ -2,6 +2,8 @@ import { useEffect, useMemo, useState } from "react";
 import { Link, useNavigate } from "react-router";
 import api from "../utils/api";
 import axios from "axios";
+import { showToast } from "../utils/toast";
+import { formatRupiah } from "../utils/format";
 
 const EMPTY_FORM = {
   invoice_id: "",
@@ -22,7 +24,6 @@ export default function PaymentForm() {
 
   const [formData, setFormData] = useState(EMPTY_FORM);
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [errorMessage, setErrorMessage] = useState("");
   const [fieldErrors, setFieldErrors] = useState({});
 
   const [invoices, setInvoices] = useState([]);
@@ -60,7 +61,7 @@ export default function PaymentForm() {
           return;
         }
 
-        setErrorMessage("Gagal memuat daftar invoice yang dapat dibayar.");
+        showToast.error("Gagal memuat daftar invoice yang dapat dibayar.");
       } finally {
         setLoadingInvoices(false);
       }
@@ -96,28 +97,27 @@ export default function PaymentForm() {
 
   async function handleSubmit(e) {
     e.preventDefault();
-    setErrorMessage("");
     setFieldErrors({});
 
     const amountNum = Number(formData.amount);
 
     if (!formData.invoice_id) {
-      setErrorMessage("Pilih invoice terlebih dahulu.");
+      showToast.warning("Pilih invoice terlebih dahulu.");
       return;
     }
 
     if (!formData.payment_date) {
-      setErrorMessage("Tanggal pembayaran wajib diisi.");
+      showToast.warning("Tanggal pembayaran wajib diisi.");
       return;
     }
 
     if (isNaN(amountNum) || amountNum <= 0) {
-      setErrorMessage("Nominal harus lebih besar dari 0.");
+      showToast.warning("Nominal harus lebih besar dari 0.");
       return;
     }
 
     if (selectedInvoice && amountNum > selectedInvoice.outstanding_amount) {
-      setErrorMessage("Nominal pembayaran melebihi sisa tunggakan tagihan.");
+      showToast.warning("Nominal pembayaran melebihi sisa tunggakan tagihan.");
       return;
     }
     setIsSubmitting(true);
@@ -134,25 +134,16 @@ export default function PaymentForm() {
     } catch (error) {
       if (error.response?.status === 422) {
         const data = error.response.data;
-        setErrorMessage(data.message || "Validasi gagal.");
+        showToast.warning(data.message || "Validasi gagal.");
         if (data.errors) setFieldErrors(data.errors);
       } else {
-        setErrorMessage(
+        showToast.error(
           error.response?.data?.message || "Terjadi kesalahan pada server.",
         );
       }
     } finally {
       setIsSubmitting(false);
     }
-  }
-
-  function formatRupiah(value) {
-    if (value === null || value === undefined) return "-";
-    return new Intl.NumberFormat("id-ID", {
-      style: "currency",
-      currency: "IDR",
-      minimumFractionDigits: 0,
-    }).format(value);
   }
 
   return (
@@ -172,13 +163,6 @@ export default function PaymentForm() {
           </div>
         </div>
       </div>
-
-      {errorMessage && (
-        <div className="alert alert-danger">
-          <i className="bi bi-exclamation-triangle-fill me-2"></i>
-          {errorMessage}
-        </div>
-      )}
 
       {!loadingInvoices && invoices.length === 0 && (
         <div className="alert alert-warning">

@@ -2,6 +2,8 @@ import { useEffect, useMemo, useState } from "react";
 import { Link, useNavigate } from "react-router";
 import api from "../utils/api";
 import axios from "axios";
+import { showToast } from "../utils/toast";
+import { formatRupiah } from "../utils/format";
 
 const EMPTY_ITEM = {
   fee_component_id: "",
@@ -31,7 +33,6 @@ export default function InvoiceForm() {
   const [items, setItems] = useState([{ ...EMPTY_ITEM }]);
 
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [errorMessage, setErrorMessage] = useState("");
   const [fieldErrors, setFieldErrors] = useState({});
 
   // master data
@@ -75,7 +76,7 @@ export default function InvoiceForm() {
         if (axios.isCancel(error)) {
           return;
         }
-        setErrorMessage("Gagal memuat master data. Coba muat ulang halaman.");
+        showToast.error("Gagal memuat master data. Coba muat ulang halaman.");
       } finally {
         setLoadingMaster(false);
       }
@@ -237,25 +238,24 @@ export default function InvoiceForm() {
   // submit
   async function handleSubmit(e) {
     e.preventDefault();
-    setErrorMessage("");
     setFieldErrors({});
     setIsSubmitting(true);
 
     // validasi klien minimal
     if (!formData.student_id) {
-      setErrorMessage("Pilih siswa terlebih dahulu.");
+      showToast.warning("Pilih siswa terlebih dahulu.");
       setIsSubmitting(false);
       return;
     }
 
     if (!formData.academic_year_id) {
-      setErrorMessage("Tahun ajaran tidak terdeteksi dari penempatan.");
+      showToast.warning("Tahun ajaran tidak terdeteksi dari penempatan.");
       setIsSubmitting(false);
       return;
     }
 
     if (!formData.due_date) {
-      setErrorMessage("Tanggal jatuh tempo wajib diisi.");
+      showToast.warning("Tanggal jatuh tempo wajib diisi.");
       setIsSubmitting(false);
       return;
     }
@@ -265,7 +265,7 @@ export default function InvoiceForm() {
     );
 
     if (invalidItem) {
-      setErrorMessage(
+      showToast.warning(
         "Semua item harus memiliki nama dan nominal lebih dari sama dengan 0.",
       );
       setIsSubmitting(false);
@@ -305,26 +305,16 @@ export default function InvoiceForm() {
     } catch (error) {
       if (error.response?.status === 422) {
         const data = error.response.data;
-        setErrorMessage(data.message || "Validasi gagal.");
+        showToast.warning(data.message || "Periksa kembali isian form.");
         if (data.errors) setFieldErrors(data.errors);
       } else {
-        setErrorMessage(
+        showToast.error(
           error.response?.data?.message || "Terjadi kesalahan pada server.",
         );
       }
     } finally {
       setIsSubmitting(false);
     }
-  }
-
-  function formatRupiah(value) {
-    if (value === null || value === undefined || isNaN(value)) return "-";
-
-    return new Intl.NumberFormat("id-ID", {
-      style: "currency",
-      currency: "IDR",
-      minimumFractionDigits: 0,
-    }).format(value);
   }
 
   const selectedStudent = students.find(
@@ -356,13 +346,6 @@ export default function InvoiceForm() {
           </div>
         </div>
       </div>
-
-      {errorMessage && (
-        <div className="alert alert-danger">
-          <i className="bi bi-exclamation-triangle-fill me-2"></i>
-          {errorMessage}
-        </div>
-      )}
 
       <form onSubmit={handleSubmit}>
         {/*  Section 1: Siswa & Tahun Ajaran */}

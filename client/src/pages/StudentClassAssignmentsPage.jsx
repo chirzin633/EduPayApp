@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { Link, useLocation, useNavigate } from "react-router";
 import api from "../utils/api";
+import { showToast } from "../utils/toast";
 
 export default function StudentClassAssignmentsPage() {
   const navigate = useNavigate();
@@ -8,8 +9,6 @@ export default function StudentClassAssignmentsPage() {
 
   const [assignments, setAssignments] = useState([]);
   const [loading, setLoading] = useState(false);
-  const [errorMessage, setErrorMessage] = useState("");
-  const [successMessage, setSuccessMessage] = useState("");
   const [pagination, setPagination] = useState({
     current_page: 1,
     last_page: 1,
@@ -40,7 +39,7 @@ export default function StudentClassAssignmentsPage() {
       setClasses(clsRes.data.data);
       setStudents(stuRes.data.data);
     } catch {
-      console.warn("Gagal memuat master data filter.");
+      showToast.warning("Gagal memuat sebagian data filter.");
     } finally {
       setLoadingMaster(false);
     }
@@ -48,7 +47,6 @@ export default function StudentClassAssignmentsPage() {
 
   async function fetchAssignments(page = 1, appliedFilter = filter) {
     setLoading(true);
-    setErrorMessage("");
     try {
       const params = new URLSearchParams();
       params.append("page", page);
@@ -72,7 +70,7 @@ export default function StudentClassAssignmentsPage() {
         last_page: res.data.meta.last_page,
       });
     } catch {
-      setErrorMessage("Gagal memuat data penempatan siswa.");
+      showToast.error("Gagal memuat data penempatan siswa.");
     } finally {
       setLoading(false);
     }
@@ -82,7 +80,7 @@ export default function StudentClassAssignmentsPage() {
     fetchMasterData();
     fetchAssignments();
     if (location.state?.flash) {
-      setSuccessMessage(location.state.flash);
+      showToast.success(location.state.flash);
       navigate(location.pathname, { replace: true, state: {} });
     }
   }, []);
@@ -125,20 +123,6 @@ export default function StudentClassAssignmentsPage() {
         </div>
       </div>
 
-      {successMessage && (
-        <div className="alert alert-success alert-dismissible fade show">
-          <i className="bi bi-check-circle-fill me-2"></i>
-          {successMessage}
-        </div>
-      )}
-
-      {errorMessage && (
-        <div className="alert alert-danger">
-          <i className="bi bi-exclamation-triangle-fill me-2"></i>
-          {errorMessage}
-        </div>
-      )}
-
       <div className="alert alert-info">
         <i className="bi bi-info-circle-fill me-2"></i>
         <strong>Catatan:</strong> Setiap siswa hanya boleh memiliki satu
@@ -175,10 +159,10 @@ export default function StudentClassAssignmentsPage() {
 
               <div className="col-md-3 col-12">
                 <select
-                  name="class_id"
-                  id="class_id"
+                  name="student_id"
+                  id="student_id"
                   className="form-select"
-                  value={filter.class_id}
+                  value={filter.student_id}
                   onChange={handleFilterChange}
                   disabled={loadingMaster}
                 >
@@ -186,6 +170,24 @@ export default function StudentClassAssignmentsPage() {
                   {students.map((student) => (
                     <option value={student.id} key={student.id}>
                       {student.nis} - {student.full_name}
+                    </option>
+                  ))}
+                </select>
+              </div>
+
+              <div className="col-md-3 col-12">
+                <select
+                  name="class_id"
+                  id="class_id"
+                  className="form-select"
+                  value={filter.class_id}
+                  onChange={handleFilterChange}
+                  disabled={loadingMaster}
+                >
+                  <option value="">Semua Kelas</option>
+                  {classes.map((c) => (
+                    <option value={c.id} key={c.id}>
+                      {c.code} - {c.name}
                     </option>
                   ))}
                 </select>
@@ -271,6 +273,18 @@ export default function StudentClassAssignmentsPage() {
                 <button
                   className="btn btn-sm btn-outline-secondary me-2"
                   disabled={pagination.current_page === 1}
+                  onClick={() =>
+                    fetchAssignments(pagination.current_page - 1, filter)
+                  }
+                >
+                  Previous
+                </button>
+                <span className="align-self-center mx-2 text-muted">
+                  Halaman {pagination.current_page} dari {pagination.last_page}
+                </span>
+                <button
+                  className="btn btn-sm btn-outline-secondary me-2"
+                  disabled={pagination.current_page === pagination.last_page}
                   onClick={() =>
                     fetchAssignments(pagination.current_page + 1, filter)
                   }

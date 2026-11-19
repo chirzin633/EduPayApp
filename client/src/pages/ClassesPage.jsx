@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { Link, useLocation, useNavigate } from "react-router";
 import api from "../utils/api";
+import { showToast } from "../utils/toast";
 
 export default function ClassesPage() {
   const navigate = useNavigate();
@@ -8,8 +9,6 @@ export default function ClassesPage() {
 
   const [classes, setClasses] = useState([]);
   const [loading, setLoading] = useState(false);
-  const [errorMessage, setErrorMessage] = useState("");
-  const [successMessage, setSuccessMessage] = useState("");
   const [pagination, setPagination] = useState({
     current_page: 1,
     last_page: 1,
@@ -21,7 +20,6 @@ export default function ClassesPage() {
 
   async function fetchClasses(page = 1) {
     setLoading(true);
-    setErrorMessage("");
     try {
       const params = new URLSearchParams();
       params.append("page", page);
@@ -36,7 +34,7 @@ export default function ClassesPage() {
         last_page: res.data.meta.last_page,
       });
     } catch (error) {
-      setErrorMessage("Gagal memuat data kelas.");
+      showToast.error("Gagal memuat data kelas");
     } finally {
       setLoading(false);
     }
@@ -45,7 +43,7 @@ export default function ClassesPage() {
   useEffect(() => {
     fetchClasses();
     if (location.state?.flash) {
-      setSuccessMessage(location.state.flash);
+      showToast.success(location.state.flash);
       navigate(location.pathname, { replace: true, state: {} });
     }
   }, []);
@@ -94,20 +92,6 @@ export default function ClassesPage() {
           </div>
         </div>
       </div>
-
-      {successMessage && (
-        <div className="alert alert-success alert-dismissible fade show">
-          <i className="bi bi-check-circle-fill me-2"></i>
-          {successMessage}
-        </div>
-      )}
-
-      {errorMessage && (
-        <div className="alert alert-danger">
-          <i className="bi bi-exclamation-triangle-fill me-2"></i>
-          {errorMessage}
-        </div>
-      )}
 
       <section className="section">
         <div className="card">
